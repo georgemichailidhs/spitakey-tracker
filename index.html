@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Outreach Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; font-size: 14px; background: #F8F5FF; color: #1A1A1A; min-height: 100vh; }
+
+/* HEADER */
+.header { background: #5B2D8E; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+.header-left h1 { color: white; font-size: 18px; font-weight: 600; }
+.header-left p { color: #D4BFFF; font-size: 12px; margin-top: 2px; }
+.header-right { color: #D4BFFF; font-size: 12px; text-align: right; }
+
+/* MAIN */
+.main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+/* STATS */
+.stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat { background: white; border: 0.5px solid #E0D6FF; border-radius: 10px; padding: 12px 14px; text-align: center; }
+.stat-num { font-size: 26px; font-weight: 600; color: #5B2D8E; }
+.stat-lbl { font-size: 11px; color: #888; margin-top: 2px; }
+
+/* PROGRESS */
+.progress-section { background: white; border: 0.5px solid #E0D6FF; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; }
+.progress-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+.progress-header span:first-child { color: #4A235A; font-weight: 500; }
+.progress-header span:last-child { color: #5B2D8E; font-weight: 600; }
+.progress-bar { height: 8px; background: #F3EFFE; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; background: #5B2D8E; transition: width 0.4s; }
+
+/* TOOLBAR */
+.toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.toolbar input, .toolbar select {
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  padding: 7px 12px; border: 0.5px solid #D1C4E9; border-radius: 8px;
+  background: white; color: #1A1A1A; outline: none;
+}
+.toolbar input { flex: 1; min-width: 160px; }
+.toolbar input:focus, .toolbar select:focus { border-color: #5B2D8E; }
+.add-btn {
+  padding: 7px 16px; border-radius: 8px; border: 0.5px solid #5B2D8E;
+  background: #5B2D8E; color: white; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  white-space: nowrap;
+}
+.add-btn:hover { background: #4A235A; }
+
+/* TABLE */
+.tbl-wrap { background: white; border: 0.5px solid #E0D6FF; border-radius: 12px; overflow: hidden; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 900px; }
+th {
+  background: #F9F5FF; color: #4A235A; font-weight: 500; font-size: 12px;
+  padding: 10px 12px; text-align: left; border-bottom: 0.5px solid #E0D6FF;
+  white-space: nowrap;
+}
+td { padding: 8px 12px; border-bottom: 0.5px solid #F3EFFE; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #FAFAFF; }
+.editable {
+  background: transparent; border: none; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; color: #1A1A1A; width: 100%; outline: none; min-width: 80px;
+}
+.editable:focus { background: #F3EFFE; border-radius: 4px; padding: 1px 4px; }
+select.editable { cursor: pointer; }
+.num-cell { color: #AAA; font-size: 12px; width: 28px; }
+
+/* STATUS BADGES */
+.badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.b0 { background: #F1EFE8; color: #5F5E5A; }
+.b1 { background: #E6F1FB; color: #185FA5; }
+.b2 { background: #FAEEDA; color: #854F0B; }
+.b3 { background: #EAF3DE; color: #3B6D11; }
+.b4 { background: #FFEBEE; color: #C62828; }
+
+/* DELETE */
+.del-btn { background: none; border: none; cursor: pointer; color: #CCC; font-size: 16px; padding: 3px 6px; border-radius: 4px; }
+.del-btn:hover { color: #C62828; background: #FFEBEE; }
+
+/* EMPTY */
+.empty-row td { text-align: center; color: #AAA; padding: 32px; font-size: 13px; }
+
+/* LEGEND */
+.legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #888; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+@media (max-width: 600px) {
+  .stats { grid-template-columns: repeat(3, 1fr); }
+  .header { flex-direction: column; gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>🏠 Spitakey — Outreach Tracker</h1>
+    <p>Παρακολούθηση επαφών για onboarding πρώτων landlords</p>
+  </div>
+  <div class="header-right">
+    Στόχος: 20 επαφές → 5 onboarded<br>
+    spitakey.gr
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats" id="statsRow"></div>
+
+  <!-- PROGRESS -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span>Πρόοδος προς στόχο — 5 onboarded landlords</span>
+      <span id="progLabel">0 / 5</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <input type="text" id="searchBox" placeholder="🔍  Αναζήτηση ονόματος..." oninput="render()" />
+    <select id="filterStatus" onchange="render()">
+      <option value="">Όλα τα status</option>
+      <option>Δεν έχει επικοινωνήσει</option>
+      <option>Αναμένει απάντηση</option>
+      <option>Θετικός — ενδιαφέρεται</option>
+      <option>Onboarded ✅</option>
+      <option>Αρνητικός</option>
+    </select>
+    <select id="filterSxesi" onchange="render()">
+      <option value="">Όλες οι σχέσεις</option>
+      <option>Φίλος</option>
+      <option>Συγγενής</option>
+      <option>Συνάδελφος</option>
+      <option>Γνωστός</option>
+      <option>Φίλος φίλου</option>
+    </select>
+    <button class="add-btn" onclick="addRow()">+ Νέα επαφή</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Όνομα</th>
+          <th>Σχέση</th>
+          <th>Τηλέφωνο</th>
+          <th>Έχει ακίνητο;</th>
+          <th>Ενοικιάζει;</th>
+          <th>Γνωρίζει landlords;</th>
+          <th>Μέθοδος</th>
+          <th>Status</th>
+          <th>Επόμενο βήμα</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#B4B2A9"></div>Δεν έχει επικοινωνήσει</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#185FA5"></div>Αναμένει απάντηση</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#854F0B"></div>Θετικός</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3B6D11"></div>Onboarded ✅</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#C62828"></div>Αρνητικός</div>
+  </div>
+
+</div>
+
+<script>
+const STATUSES = ["Δεν έχει επικοινωνήσει","Αναμένει απάντηση","Θετικός — ενδιαφέρεται","Onboarded ✅","Αρνητικός"];
+const BADGE_CLASS = ["b0","b1","b2","b3","b4"];
+const SXESEIS = ["Φίλος","Συγγενής","Συνάδελφος","Γνωστός","Φίλος φίλου","Άλλο"];
+const METHODOI = ["WhatsApp","Τηλέφωνο","Email","Προσωπικά","LinkedIn"];
+const YESNO = ["—","ΝΑΙ","ΟΧΙ"];
+
+const STORAGE_KEY = "spitakey_outreach_v1";
+
+function makeRow(overrides) {
+  return { name:"", sxesi:"Φίλος", tel:"", akinito:"—", enoikia:"—", gnorizei:"—", methodos:"WhatsApp", status:"Δεν έχει επικοινωνήσει", next:"", ...overrides };
+}
+
+function loadData() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return Array.from({length:20}, () => makeRow());
+}
+
+let data = loadData();
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function update(i, field, val) { data[i][field] = val; save(); renderStats(); }
+function addRow() { data.push(makeRow()); save(); render(); setTimeout(()=>{ const els=document.querySelectorAll('.name-inp'); if(els.length) els[els.length-1].focus(); },60); }
+function delRow(i) { if(confirm("Διαγραφή επαφής;")) { data.splice(i,1); save(); render(); } }
+
+function selOpts(arr, cur) { return arr.map(a=>`<option${a===cur?' selected':''}>${a}</option>`).join(""); }
+
+function renderStats() {
+  const filled = data.filter(r=>r.name.trim());
+  const counts = {};
+  STATUSES.forEach(s=>counts[s]=0);
+  filled.forEach(r=>counts[r.status]=(counts[r.status]||0)+1);
+  const onboarded = counts["Onboarded ✅"]||0;
+
+  document.getElementById("statsRow").innerHTML = [
+    {lbl:"Σύνολο επαφών", val:filled.length},
+    {lbl:"Δεν επικοινώνησε", val:counts["Δεν έχει επικοινωνήσει"]||0},
+    {lbl:"Αναμένει", val:counts["Αναμένει απάντηση"]||0},
+    {lbl:"Θετικοί", val:counts["Θετικός — ενδιαφέρεται"]||0},
+    {lbl:"Onboarded ✅", val:onboarded},
+  ].map(s=>`<div class="stat"><div class="stat-num">${s.val}</div><div class="stat-lbl">${s.lbl}</div></div>`).join("");
+
+  const pct = Math.min(Math.round((onboarded/5)*100), 100);
+  document.getElementById("progFill").style.width = pct+"%";
+  document.getElementById("progLabel").textContent = onboarded+" / 5";
+}
+
+function render() {
+  const q = document.getElementById("searchBox").value.toLowerCase();
+  const fs = document.getElementById("filterStatus").value;
+  const fx = document.getElementById("filterSxesi").value;
+
+  const filtered = data.map((r,i)=>({...r,_i:i})).filter(r=>{
+    if(q && !r.name.toLowerCase().includes(q)) return false;
+    if(fs && r.status!==fs) return false;
+    if(fx && r.sxesi!==fx) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById("tbody");
+  if(!filtered.length) {
+    tbody.innerHTML=`<tr class="empty-row"><td colspan="11">Δεν βρέθηκαν επαφές με αυτά τα φίλτρα</td></tr>`;
+    renderStats(); return;
+  }
+
+  tbody.innerHTML = filtered.map(r => {
+    const i = r._i;
+    const bc = BADGE_CLASS[STATUSES.indexOf(r.status)]||"b0";
+    return `<tr>
+      <td class="num-cell">${i+1}</td>
+      <td><input class="editable name-inp" value="${r.name}" placeholder="Όνομα..." onchange="update(${i},'name',this.value)" /></td>
+      <td><select class="editable" onchange="update(${i},'sxesi',this.value)">${selOpts(SXESEIS,r.sxesi)}</select></td>
+      <td><input class="editable" value="${r.tel}" placeholder="69X..." onchange="update(${i},'tel',this.value)" style="min-width:95px;" /></td>
+      <td><select class="editable" onchange="update(${i},'akinito',this.value)">${selOpts(YESNO,r.akinito)}</select></td>
+      <td><select class="editable" onchange="update(${i},'enoikia',this.value)">${selOpts(YESNO,r.enoikia)}</select></td>
+      <td><select class="editable" onchange="update(${i},'gnorizei',this.value)">${selOpts(YESNO,r.gnorizei)}</select></td>
+      <td><select class="editable" onchange="update(${i},'methodos',this.value)">${selOpts(METHODOI,r.methodos)}</select></td>
+      <td>
+        <span class="badge ${bc}" style="cursor:pointer" onclick="cycleStatus(${i},this)">${r.status}</span>
+      </td>
+      <td><input class="editable" value="${r.next}" placeholder="π.χ. Στείλε demo link..." onchange="update(${i},'next',this.value)" style="min-width:140px;" /></td>
+      <td><button class="del-btn" onclick="delRow(${i})" title="Διαγραφή">✕</button></td>
+    </tr>`;
+  }).join("");
+  renderStats();
+}
+
+function cycleStatus(i, el) {
+  const cur = STATUSES.indexOf(data[i].status);
+  const next = (cur+1) % STATUSES.length;
+  data[i].status = STATUSES[next];
+  save();
+  el.textContent = data[i].status;
+  el.className = "badge "+BADGE_CLASS[next];
+  renderStats();
+}
+
+render();
+</script>
+</body>
+</html>
