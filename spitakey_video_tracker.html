@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Video Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#1A1A1A;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600}
+.header p{color:#888;font-size:12px;margin-top:2px}
+.main{max-width:1000px;margin:0 auto;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.stat{background:white;border:0.5px solid #E0E0E0;border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:600;color:#1A1A1A}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+.progress-section{background:white;border:0.5px solid #E0E0E0;border-radius:10px;padding:14px 18px;margin-bottom:16px}
+.progress-header{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+.progress-bar{height:8px;background:#F0F0F0;border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#5B2D8E,#1B5E20);transition:width 0.4s}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-bar select{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;border:0.5px solid #D1D1D1;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.section-header{font-size:13px;font-weight:700;padding:10px 14px;border-radius:8px;margin-bottom:8px;margin-top:16px}
+.landlord-header{background:#E3F2FD;color:#0D47A1}
+.tenant-header{background:#E8F5E9;color:#1B5E20}
+.video-card{background:white;border:0.5px solid #E0E0E0;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.video-card-top{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer}
+.video-card-top:hover{background:#FAFAFA}
+.video-num{font-size:12px;font-weight:700;min-width:32px;text-align:center;padding:4px 6px;border-radius:6px}
+.num-l{background:#E3F2FD;color:#0D47A1}
+.num-t{background:#E8F5E9;color:#1B5E20}
+.video-title{flex:1;font-size:13px;font-weight:500}
+.video-duration{font-size:11px;color:#888;white-space:nowrap}
+.status-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.s0{background:#F0F0F0;color:#666}
+.s1{background:#E3F2FD;color:#0D47A1}
+.s2{background:#FFF8E1;color:#E65100}
+.s3{background:#F3EFFE;color:#5B2D8E}
+.s4{background:#E8F5E9;color:#1B5E20}
+.s5{background:#FCE4EC;color:#880E4F}
+.video-card-body{padding:12px 14px;border-top:0.5px solid #F0F0F0;background:#FAFAFA;display:none}
+.video-card-body.open{display:block}
+.body-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.body-label{font-size:10px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.body-val{font-size:12px;color:#1A1A1A;line-height:1.5}
+.notes-inp{width:100%;border:0.5px solid #D1D1D1;border-radius:6px;padding:7px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:#1A1A1A;outline:none;resize:vertical;min-height:50px;background:white}
+.notes-inp:focus{border-color:#5B2D8E}
+.status-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.status-btn{padding:5px 10px;border-radius:6px;border:0.5px solid #E0E0E0;background:white;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer}
+.status-btn.active{font-weight:700}
+.youtube-inp{width:100%;border:0.5px solid #D1D1D1;border-radius:6px;padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:#1A1A1A;outline:none;margin-top:4px}
+.youtube-inp:focus{border-color:#C62828}
+.expand-icon{color:#888;font-size:12px;transition:transform 0.2s}
+.expand-icon.open{transform:rotate(180deg)}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>🎬 Spitakey — Video Production Tracker</h1>
+    <p>14 Onboarding Videos · 7 Landlord + 7 Tenant · George & Lefteris</p>
+  </div>
+  <div style="color:#666;font-size:12px;text-align:right">spitakey.gr · Μάιος 2026</div>
+</div>
+<div class="main">
+  <div class="stats" id="statsRow"></div>
+  <div class="progress-section">
+    <div class="progress-header">
+      <span style="font-weight:500;color:#1A1A1A">Συνολική πρόοδος παραγωγής</span>
+      <span id="progLabel" style="font-weight:600;color:#5B2D8E">0 / 14 Ready</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+  <div class="filter-bar">
+    <select id="filterAud" onchange="render()">
+      <option value="">Landlord + Tenant</option>
+      <option value="Landlord">Landlord μόνο</option>
+      <option value="Tenant">Tenant μόνο</option>
+    </select>
+    <select id="filterStatus" onchange="render()">
+      <option value="">Όλα τα status</option>
+      <option value="Pending">Pending</option>
+      <option value="Script Ready">Script Ready</option>
+      <option value="Recording">Recording</option>
+      <option value="Editing">Editing</option>
+      <option value="Ready ✅">Ready ✅</option>
+      <option value="Published 🟢">Published 🟢</option>
+    </select>
+  </div>
+  <div id="content"></div>
+</div>
+<script>
+const KEY="spitakey_videos_v1";
+const STATUSES=["Pending","Script Ready","Recording","Editing","Ready ✅","Published 🟢"];
+const SC=["s0","s1","s2","s3","s4","s5"];
+
+const VIDEOS=[
+  {id:"L1",aud:"Landlord",title:"Καλώς ήρθες στο Spitakey — Landlord",dur:"90 sec",priority:"🔴 Πρώτο",scenes:4,desc:"Intro, τι είναι το Spitakey, 5 βήματα, CTA signup"},
+  {id:"L2",aud:"Landlord",title:"Πώς να κάνεις KYC ως Landlord",dur:"90 sec",priority:"🔴 Πρώτο",scenes:4,desc:"Gov.gr flow, E9 upload, αναμονή, Verified badge"},
+  {id:"L3",aud:"Landlord",title:"Πώς να δημοσιεύσεις το πρώτο σου listing",dur:"120 sec",priority:"🟠 Δεύτερο",scenes:5,desc:"Νέο listing, φωτογραφίες, ΠΕΑ, publish"},
+  {id:"L4",aud:"Landlord",title:"Πώς να επιλέξεις τον κατάλληλο tenant",dur:"90 sec",priority:"🟠 Δεύτερο",scenes:4,desc:"Inbox, Trust Score, αποδοχή/απόρριψη, messaging"},
+  {id:"L5",aud:"Landlord",title:"Πώς λειτουργεί το e-contract",dur:"90 sec",priority:"🟡 Τρίτο",scenes:4,desc:"Auto-generation, review, e-signature, PDF + Taxisnet"},
+  {id:"L6",aud:"Landlord",title:"Πώς εισπράττεις ενοίκιο αυτόματα",dur:"90 sec",priority:"🔴 Πρώτο",scenes:4,desc:"IBAN setup, αυτόματη πληρωμή, notifications, Ν.5222"},
+  {id:"L7",aud:"Landlord",title:"Πώς λειτουργεί η εγγύηση escrow",dur:"60 sec",priority:"🟡 Τρίτο",scenes:3,desc:"Τι είναι escrow, αποδέσμευση, προστασία"},
+  {id:"T1",aud:"Tenant",title:"Καλώς ήρθες στο Spitakey — Tenant",dur:"90 sec",priority:"🔴 Πρώτο",scenes:4,desc:"Hook, τι είναι, τι κερδίζεις, CTA signup"},
+  {id:"T2",aud:"Tenant",title:"Πώς να κάνεις KYC ως Tenant",dur:"90 sec",priority:"🔴 Πρώτο",scenes:4,desc:"Γιατί KYC, Gov.gr, εκκαθαριστικό, Trust Score"},
+  {id:"T3",aud:"Tenant",title:"Πώς να αναζητήσεις ακίνητο",dur:"90 sec",priority:"🟠 Δεύτερο",scenes:4,desc:"Search, χάρτης, listing detail, save favorites"},
+  {id:"T4",aud:"Tenant",title:"Πώς να κάνεις αίτηση σε listing",dur:"60 sec",priority:"🟠 Δεύτερο",scenes:3,desc:"Reusable profile, submit, messaging landlord"},
+  {id:"T5",aud:"Tenant",title:"Πώς υπογράφεις το e-contract",dur:"90 sec",priority:"🟡 Τρίτο",scenes:4,desc:"Ειδοποίηση, review, υπαναχώρηση checkbox, sign"},
+  {id:"T6",aud:"Tenant",title:"Πώς ρυθμίζεις την αυτόματη πληρωμή",dur:"90 sec",priority:"🔴 Πρώτο",scenes:4,desc:"Κάρτα setup, εγγύηση escrow, μηνιαία πληρωμή, αποτυχία"},
+  {id:"T7",aud:"Tenant",title:"Τι είναι το Trust Score και πώς ανεβαίνει",dur:"60 sec",priority:"🟡 Τρίτο",scenes:3,desc:"Τι είναι, πώς ανεβαίνει (+2/μήνα κλπ), αξία"},
+];
+
+function loadState(){try{const s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}return{};}
+let state=loadState();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function getState(id){return state[id]||{status:"Pending",notes:"",youtube:""};}
+function updateState(id,field,val){if(!state[id])state[id]={status:"Pending",notes:"",youtube:""};state[id][field]=val;save();}
+
+let openCards={};
+function toggleCard(id){openCards[id]=!openCards[id];render();}
+
+function cycleStatus(id){
+  const s=getState(id);
+  const n=(STATUSES.indexOf(s.status)+1)%STATUSES.length;
+  updateState(id,"status",STATUSES[n]);render();
+}
+
+function renderStats(){
+  const counts={};STATUSES.forEach(s=>counts[s]=0);
+  VIDEOS.forEach(v=>counts[getState(v.id).status]=(counts[getState(v.id).status]||0)+1);
+  const ready=(counts["Ready ✅"]||0)+(counts["Published 🟢"]||0);
+  document.getElementById("statsRow").innerHTML=[
+    {l:"Σύνολο",v:14},{l:"Pending",v:counts["Pending"]||0},
+    {l:"In Production",v:(counts["Script Ready"]||0)+(counts["Recording"]||0)+(counts["Editing"]||0)},
+    {l:"Ready ✅",v:counts["Ready ✅"]||0},{l:"Published 🟢",v:counts["Published 🟢"]||0}
+  ].map(s=>`<div class="stat"><div class="stat-num">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join("");
+  const pct=Math.round((ready/14)*100);
+  document.getElementById("progFill").style.width=pct+"%";
+  document.getElementById("progLabel").textContent=ready+" / 14 Ready";
+}
+
+function render(){
+  const fa=document.getElementById("filterAud").value;
+  const fs=document.getElementById("filterStatus").value;
+  const groups=[{label:"🏠 Landlord Videos (L1-L7)",aud:"Landlord",cls:"landlord-header"},{label:"🔑 Tenant Videos (T1-T7)",aud:"Tenant",cls:"tenant-header"}];
+  let html="";
+  groups.forEach(g=>{
+    if(fa&&fa!==g.aud)return;
+    const vids=VIDEOS.filter(v=>v.aud===g.aud&&(!fs||getState(v.id).status===fs));
+    if(!vids.length)return;
+    html+=`<div class="section-header ${g.cls}">${g.label}</div>`;
+    vids.forEach(v=>{
+      const st=getState(v.id);
+      const si=STATUSES.indexOf(st.status);
+      const sc=SC[si]||"s0";
+      const isOpen=openCards[v.id];
+      html+=`<div class="video-card">
+        <div class="video-card-top" onclick="toggleCard('${v.id}')">
+          <div class="video-num ${v.aud==='Landlord'?'num-l':'num-t'}">${v.id}</div>
+          <div class="video-title">${v.title}</div>
+          <div class="video-duration">${v.dur}</div>
+          <div class="status-badge ${sc}" onclick="event.stopPropagation();cycleStatus('${v.id}')">${st.status}</div>
+          <div class="expand-icon${isOpen?' open':''}">▼</div>
+        </div>
+        <div class="video-card-body${isOpen?' open':''}">
+          <div class="body-grid">
+            <div>
+              <div class="body-label">Περιεχόμενο</div>
+              <div class="body-val">${v.desc}</div>
+              <div style="margin-top:6px"><span style="font-size:10px;color:#888">Σκηνές: ${v.scenes} · Προτεραιότητα: ${v.priority}</span></div>
+            </div>
+            <div>
+              <div class="body-label">YouTube Link</div>
+              <input class="youtube-inp" placeholder="https://youtu.be/..." value="${st.youtube||''}" onchange="updateState('${v.id}','youtube',this.value)" />
+              <div class="body-label" style="margin-top:8px">Σημειώσεις</div>
+              <textarea class="notes-inp" placeholder="Script notes, feedback, issues..." onchange="updateState('${v.id}','notes',this.value)">${st.notes||''}</textarea>
+            </div>
+          </div>
+          <div class="status-row">
+            ${STATUSES.map((s,i)=>`<button class="status-btn${st.status===s?' active':''}${' '+SC[i]}" onclick="updateState('${v.id}','status','${s}');render()">${s}</button>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    });
+  });
+  document.getElementById("content").innerHTML=html;
+  renderStats();
+}
+render();
+</script>
+</body>
+</html>
