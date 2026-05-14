@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Equity Structure</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#1A1A1A;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600;font-family:'Playfair Display',serif}
+.header p{color:#888;font-size:12px;margin-top:2px}
+.header-right{color:#888;font-size:12px;text-align:right}
+.main{max-width:1100px;margin:0 auto;padding:20px}
+
+/* STAGE SELECTOR */
+.stage-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.stage-btn{padding:8px 16px;border-radius:8px;border:1.5px solid #E0D6FF;background:white;color:#888;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all 0.2s}
+.stage-btn:hover{border-color:#5B2D8E;color:#5B2D8E}
+.stage-btn.active{background:#5B2D8E;border-color:#5B2D8E;color:white;font-weight:600}
+
+/* STAGE INFO */
+.stage-info{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.stage-title{font-family:'Playfair Display',serif;font-size:20px;color:#5B2D8E;font-weight:700}
+.stage-meta{display:flex;gap:20px;flex-wrap:wrap}
+.meta-item{text-align:center}
+.meta-val{font-size:18px;font-weight:700;color:#1A1A1A;display:block}
+.meta-lbl{font-size:10px;color:#888;margin-top:2px}
+.meta-val.green{color:#1B5E20}
+.meta-val.purple{color:#5B2D8E}
+
+/* PIE CHART */
+.viz-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.pie-section{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:20px}
+.pie-section h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:16px}
+.pie-wrap{display:flex;align-items:center;gap:20px}
+.pie-svg{flex-shrink:0}
+.legend{display:flex;flex-direction:column;gap:8px;flex:1}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.legend-name{flex:1;color:#1A1A1A}
+.legend-pct{font-weight:700;color:#5B2D8E}
+
+/* VESTING */
+.vesting-section{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:20px}
+.vesting-section h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:16px}
+.vesting-timeline{position:relative;padding:10px 0}
+.vesting-bar-bg{height:10px;background:#F3EFFE;border-radius:5px;margin:8px 0 4px;overflow:hidden}
+.vesting-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#5B2D8E,#7B4BB0);transition:width 0.5s}
+.vesting-milestones{display:flex;justify-content:space-between;font-size:10px;color:#888;margin-top:4px}
+.founder-vesting{margin-bottom:16px}
+.founder-name-v{font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:6px;display:flex;justify-content:space-between}
+.vested-badge{font-size:11px;padding:2px 8px;border-radius:20px;background:#E8F5E9;color:#1B5E20;font-weight:500}
+
+/* CAP TABLE */
+.cap-section{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:20px;margin-bottom:20px}
+.cap-section h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:14px}
+table{width:100%;border-collapse:collapse}
+th{background:#F9F5FF;color:#4A235A;font-weight:500;font-size:12px;padding:9px 12px;text-align:left;border-bottom:0.5px solid #E0D6FF;white-space:nowrap}
+td{padding:9px 12px;border-bottom:0.5px solid #F3EFFE;font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none;font-weight:700;background:#F9F5FF}
+tr:hover td{background:#FAFAFF}
+.share-bar{height:5px;background:#F0E8FF;border-radius:3px;overflow:hidden;margin-top:3px}
+.share-fill{height:100%;border-radius:3px}
+
+/* DILUTION TABLE */
+.dilution-section{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:20px;margin-bottom:20px;overflow-x:auto}
+.dilution-section h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:14px}
+.dil-table{width:100%;border-collapse:collapse;min-width:700px}
+.dil-table th{background:#1A1A1A;color:white;font-size:11px;padding:8px 12px;text-align:center;white-space:nowrap}
+.dil-table th:first-child{text-align:left}
+.dil-table td{padding:8px 12px;border-bottom:0.5px solid #F3EFFE;font-size:12px;text-align:center}
+.dil-table td:first-child{text-align:left;font-weight:500}
+.dil-table tr:hover td{background:#FAFAFF}
+.dil-table tr.founders td{background:#F9F5FF;font-weight:700}
+.dil-table tr.totals td{background:#1A1A1A;color:white;font-weight:600}
+.cur-stage{background:#F3EFFE!important;font-weight:700!important;color:#5B2D8E!important}
+
+/* EXIT TABLE */
+.exit-section{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:20px;margin-bottom:20px}
+.exit-section h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:14px}
+.exit-table{width:100%;border-collapse:collapse}
+.exit-table th{background:#1B5E20;color:white;font-size:12px;padding:8px 12px;text-align:center}
+.exit-table th:first-child{text-align:left}
+.exit-table td{padding:8px 12px;border-bottom:0.5px solid #F3EFFE;font-size:13px;text-align:center}
+.exit-table td:first-child{text-align:left;font-weight:500}
+.exit-table tr:hover td{background:#F5FFF5}
+.founders-exit{background:#E8F5E9!important}
+
+/* KEY RULES */
+.rules-section{background:#1A1A1A;border-radius:12px;padding:20px;margin-bottom:20px}
+.rules-section h3{font-size:13px;font-weight:600;color:#888;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.08em}
+.rules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.rule-card{background:#2A2A2A;border-radius:8px;padding:12px}
+.rule-title{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.rule-val{font-size:15px;font-weight:700;color:white;margin-bottom:3px}
+.rule-desc{font-size:11px;color:#666;line-height:1.4}
+
+.gold{color:#C9A84C!important}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>🏠 Spitakey — Equity Structure</h1>
+    <p>Cap Table · Dilution · Vesting · Exit Scenarios · ΕΜΠΙΣΤΕΥΤΙΚΟ</p>
+  </div>
+  <div class="header-right">George Michailidis & Lefteris Anastasiadis<br>spitakey.gr · 2026</div>
+</div>
+
+<div class="main">
+
+  <!-- STAGE SELECTOR -->
+  <div class="stage-bar" id="stageBar">
+    <button class="stage-btn active" onclick="setStage(0)">🟢 Bootstrap (Τώρα)</button>
+    <button class="stage-btn" onclick="setStage(1)">💼 Angel / Accelerator</button>
+    <button class="stage-btn" onclick="setStage(2)">🌱 Pre-Seed 2027</button>
+    <button class="stage-btn" onclick="setStage(3)">🚀 Seed 2027-28</button>
+    <button class="stage-btn" onclick="setStage(4)">⭐ Series A 2028-29</button>
+  </div>
+
+  <!-- STAGE INFO -->
+  <div class="stage-info" id="stageInfo"></div>
+
+  <!-- VIZ ROW -->
+  <div class="viz-row">
+    <div class="pie-section">
+      <h3>📊 Μετοχική Δομή</h3>
+      <div class="pie-wrap">
+        <svg class="pie-svg" viewBox="0 0 120 120" width="140" height="140" id="pieSvg"></svg>
+        <div class="legend" id="pieLegend"></div>
+      </div>
+    </div>
+    <div class="vesting-section">
+      <h3>⏳ Founders' Vesting (4 χρόνια · 1 χρόνο cliff)</h3>
+      <div id="vestingContent"></div>
+      <div style="margin-top:14px;padding:10px;background:#F9F5FF;border-radius:8px;font-size:11px;color:#555;line-height:1.6">
+        <strong style="color:#5B2D8E">Πώς λειτουργεί:</strong><br>
+        Μήνας 0-12: Κανείς δεν κτά μετοχές (cliff)<br>
+        Μήνας 12: Κτάται αμέσως το <strong>25%</strong> (250.000 μτχ)<br>
+        Μήνας 13-48: Κτάται <strong>~6.944 μτχ/μήνα</strong> (1/36 του 75%)<br>
+        Μήνας 48: <strong>100%</strong> vesting ολοκληρώθηκε
+      </div>
+    </div>
+  </div>
+
+  <!-- CAP TABLE -->
+  <div class="cap-section">
+    <h3>📋 Cap Table — Τρέχον στάδιο</h3>
+    <table id="capTable">
+      <thead><tr>
+        <th>Μέτοχος</th><th>Μετοχές</th><th>Ποσοστό</th>
+        <th>Αξία (post-money)</th><th>Ρόλος / Σχόλιο</th>
+      </tr></thead>
+      <tbody id="capBody"></tbody>
+    </table>
+  </div>
+
+  <!-- FULL DILUTION TABLE -->
+  <div class="dilution-section">
+    <h3>📉 Πλήρης Πίνακας Dilution — Bootstrap → Series A</h3>
+    <table class="dil-table">
+      <thead><tr>
+        <th>Μέτοχος</th>
+        <th>Bootstrap</th>
+        <th>Angel</th>
+        <th>Pre-Seed</th>
+        <th>Seed</th>
+        <th>Series A</th>
+      </tr></thead>
+      <tbody>
+        <tr class="founders"><td>George Michailidis</td><td id="d-g0">50%</td><td id="d-g1">47.5%</td><td id="d-g2">38.9%</td><td id="d-g3">30.5%</td><td id="d-g4">23%</td></tr>
+        <tr class="founders"><td>Lefteris Anastasiadis</td><td id="d-l0">50%</td><td id="d-l1">47.5%</td><td id="d-l2">38.9%</td><td id="d-l3">30.5%</td><td id="d-l4">23%</td></tr>
+        <tr><td>Founders Combined</td><td>100%</td><td>95%</td><td>77.8%</td><td>61%</td><td>46%</td></tr>
+        <tr><td>Angel Investors</td><td style="color:#CCC">—</td><td>5%</td><td>4%</td><td>3%</td><td>2%</td></tr>
+        <tr><td>Pre-Seed Investors</td><td style="color:#CCC">—</td><td style="color:#CCC">—</td><td>13%</td><td>10%</td><td>7%</td></tr>
+        <tr><td>Seed Investors</td><td style="color:#CCC">—</td><td style="color:#CCC">—</td><td style="color:#CCC">—</td><td>17%</td><td>12%</td></tr>
+        <tr><td>Series A Investors</td><td style="color:#CCC">—</td><td style="color:#CCC">—</td><td style="color:#CCC">—</td><td style="color:#CCC">—</td><td>20%</td></tr>
+        <tr><td>ESOP Pool</td><td style="color:#CCC">—</td><td style="color:#CCC">—</td><td>9.2%</td><td>12%</td><td>15%</td></tr>
+        <tr class="totals"><td>Post-money Valuation</td><td>€1 (symb.)</td><td>€500K</td><td>€1.15M</td><td>€4.75M</td><td>€22M</td></tr>
+        <tr class="totals"><td>Συνολικό Κεφάλαιο</td><td>€0</td><td>€25K</td><td>€175K</td><td>€925K</td><td>€4.9M</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- EXIT SCENARIOS -->
+  <div class="exit-section">
+    <h3>🚪 Σενάρια Exit — Τι παίρνει ο καθένας (μετά Series A)</h3>
+    <table class="exit-table">
+      <thead><tr>
+        <th>Μέτοχος</th><th>Ποσοστό</th>
+        <th>Exit €10M</th><th>Exit €20M</th><th>Exit €50M</th><th>Exit €100M</th>
+      </tr></thead>
+      <tbody>
+        <tr class="founders-exit"><td>George Michailidis</td><td>23%</td><td>€2.3M</td><td>€4.6M</td><td>€11.5M</td><td>€23M</td></tr>
+        <tr class="founders-exit"><td>Lefteris Anastasiadis</td><td>23%</td><td>€2.3M</td><td>€4.6M</td><td>€11.5M</td><td>€23M</td></tr>
+        <tr><td>Pre-Seed Investors</td><td>7%</td><td>€700K</td><td>€1.4M</td><td>€3.5M</td><td>€7M</td></tr>
+        <tr><td>Seed Investors</td><td>12%</td><td>€1.2M</td><td>€2.4M</td><td>€6M</td><td>€12M</td></tr>
+        <tr><td>Series A Investors</td><td>20%</td><td>€2M</td><td>€4M</td><td>€10M</td><td>€20M</td></tr>
+        <tr><td>ESOP (employees)</td><td>15%</td><td>€1.5M</td><td>€3M</td><td>€7.5M</td><td>€15M</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:10px;font-size:11px;color:#888">
+      Πιθανοί acquirers: Spitogatos / REA Group · Idealista (Permira) · Booking Holdings · QuintoAndar · European PropTech fund
+    </div>
+  </div>
+
+  <!-- KEY RULES -->
+  <div class="rules-section">
+    <h3>Βασικοί Κανόνες</h3>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-title">Χρυσός Κανόνας</div>
+        <div class="rule-val gold">>50% combined</div>
+        <div class="rule-desc">Οι founders πρέπει να διατηρούν >50% combined μετά Series A και >20% ο καθένας</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-title">Vesting</div>
+        <div class="rule-val" style="color:white">4 χρόνια · 1 cliff</div>
+        <div class="rule-desc">4-year vesting, 1-year cliff. 25% αμέσως στον μήνα 12, μετά γραμμικά</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-title">SAFE για Angels</div>
+        <div class="rule-val" style="color:white">Cap €500-800K</div>
+        <div class="rule-desc">Χρήση YC SAFE αντί equity για πρώτους angels — γρήγορο, φθηνό, χωρίς αποτίμηση τώρα</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-title">Liquidation Pref.</div>
+        <div class="rule-val" style="color:white">1x non-participating</div>
+        <div class="rule-desc">Επενδυτές παίρνουν πρώτα 1x την επένδυση τους — μετά διανέμεται το υπόλοιπο</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-title">ESOP Pool</div>
+        <div class="rule-val gold">9-15%</div>
+        <div class="rule-desc">Μετοχές για employees. Δημιουργείται Pre-Seed, αυξάνεται σε κάθε round</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-title">Right of First Refusal</div>
+        <div class="rule-val" style="color:white">Founders Agreement</div>
+        <div class="rule-desc">Κανένας founder δεν μπορεί να πουλήσει μετοχές χωρίς να προσφέρει πρώτα στον άλλο</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+const COLORS = {
+  george: "#5B2D8E",
+  lefteris: "#1B5E20",
+  angel: "#E65100",
+  preseed: "#0D47A1",
+  seed: "#C62828",
+  seriesA: "#880E4F",
+  esop: "#795548",
+  combined: "#4A235A",
+};
+
+const STAGES = [
+  {
+    name: "Bootstrap — Τώρα (2026)",
+    round: "Κανένας επενδυτής",
+    premoney: "€1 (symbolic)",
+    postmoney: "€900K (pre-money NBG)",
+    capital: "€0",
+    dilution: "0%",
+    holders: [
+      {name:"George Michailidis",shares:500000,pct:50,color:COLORS.george,value:"€450K (pre-money)",role:"CEO / Business Lead"},
+      {name:"Lefteris Anastasiadis",shares:500000,pct:50,color:COLORS.lefteris,value:"€450K (pre-money)",role:"CTO / Tech Lead"},
+      {name:"ΣΥΝΟΛΟ",shares:1000000,pct:100,color:"#333",value:"€900K",role:"Pre-money valuation NBG"},
+    ]
+  },
+  {
+    name: "Angel / Accelerator (2026)",
+    round: "NBG Business Seeds (no equity) ή Angel 5%",
+    premoney: "€475K",
+    postmoney: "€500K",
+    capital: "€25K (αν Angel)",
+    dilution: "5% (αν Angel) · 0% (αν Accelerator)",
+    holders: [
+      {name:"George Michailidis",shares:500000,pct:47.5,color:COLORS.george,value:"€237.5K",role:"CEO"},
+      {name:"Lefteris Anastasiadis",shares:500000,pct:47.5,color:COLORS.lefteris,value:"€237.5K",role:"CTO"},
+      {name:"Angel Investors",shares:55263,pct:5,color:COLORS.angel,value:"€25K",role:"Friends & Family / Angel"},
+      {name:"ΣΥΝΟΛΟ",shares:1055263,pct:100,color:"#333",value:"€500K",role:"Post-money"},
+    ]
+  },
+  {
+    name: "Pre-Seed (Q2 2027)",
+    round: "Metavallon / Angel syndicate",
+    premoney: "€1M",
+    postmoney: "€1.15M",
+    capital: "€150K",
+    dilution: "13% + 9.2% ESOP",
+    holders: [
+      {name:"George Michailidis",shares:500000,pct:38.9,color:COLORS.george,value:"€447K",role:"CEO"},
+      {name:"Lefteris Anastasiadis",shares:500000,pct:38.9,color:COLORS.lefteris,value:"€447K",role:"CTO"},
+      {name:"Pre-Seed Investors",shares:167000,pct:13,color:COLORS.preseed,value:"€150K",role:"Metavallon / Angel"},
+      {name:"ESOP Pool",shares:118000,pct:9.2,color:COLORS.esop,value:"—",role:"Future employees"},
+      {name:"ΣΥΝΟΛΟ",shares:1285000,pct:100,color:"#333",value:"€1.15M",role:"Post-money"},
+    ]
+  },
+  {
+    name: "Seed Round (Q4 2027)",
+    round: "VentureFriends ή Pi Labs",
+    premoney: "€4M",
+    postmoney: "€4.75M",
+    capital: "€750K",
+    dilution: "17% + 12% ESOP",
+    holders: [
+      {name:"George Michailidis",shares:500000,pct:30.5,color:COLORS.george,value:"€1.45M",role:"CEO"},
+      {name:"Lefteris Anastasiadis",shares:500000,pct:30.5,color:COLORS.lefteris,value:"€1.45M",role:"CTO"},
+      {name:"Pre-Seed Investors",shares:167000,pct:10,color:COLORS.preseed,value:"€475K",role:"3.2x return"},
+      {name:"Seed Investors (VF/Pi Labs)",shares:225000,pct:17,color:COLORS.seed,value:"€808K",role:"Lead investor · Board observer"},
+      {name:"ESOP Pool",shares:155000,pct:12,color:COLORS.esop,value:"—",role:"6% distributed, 6% reserved"},
+      {name:"ΣΥΝΟΛΟ",shares:1547000,pct:100,color:"#333",value:"€4.75M",role:"Post-money"},
+    ]
+  },
+  {
+    name: "Series A (2028-2029)",
+    round: "Marathon VC / EU PropTech Fund",
+    premoney: "€18M",
+    postmoney: "€22M",
+    capital: "€4M",
+    dilution: "20% + 15% ESOP",
+    holders: [
+      {name:"George Michailidis",shares:500000,pct:23,color:COLORS.george,value:"€5.1M",role:"CEO — ακόμα ελέγχει ✅"},
+      {name:"Lefteris Anastasiadis",shares:500000,pct:23,color:COLORS.lefteris,value:"€5.1M",role:"CTO — ακόμα ελέγχει ✅"},
+      {name:"Pre-Seed Investors",shares:167000,pct:7,color:COLORS.preseed,value:"€1.54M",role:"10x return vs €150K"},
+      {name:"Seed Investors",shares:225000,pct:12,color:COLORS.seed,value:"€2.64M",role:"3.5x return vs €750K"},
+      {name:"Series A Investors",shares:490000,pct:20,color:COLORS.seriesA,value:"€4.4M",role:"Marathon VC / EU PropTech"},
+      {name:"ESOP Pool",shares:395000,pct:15,color:COLORS.esop,value:"—",role:"EU team hiring"},
+      {name:"ΣΥΝΟΛΟ",shares:2277000,pct:100,color:"#333",value:"€22M",role:"Post-money"},
+    ]
+  }
+];
+
+// Vesting calculation based on current month
+function getVestedPct() {
+  const start = new Date("2026-01-01"); // assumed start
+  const now = new Date();
+  const months = Math.floor((now - start) / (1000*60*60*24*30.5));
+  if (months < 12) return { pct: 0, label: `Cliff period (μήνας ${months}/12)` };
+  const vested = 25 + Math.min(months - 12, 36) * (75/36);
+  return { pct: Math.round(vested), label: `${Math.round(vested)}% κτηθέν (μήνας ${months})` };
+}
+
+let currentStage = 0;
+
+function polarToCartesian(cx, cy, r, deg) {
+  const rad = (deg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function pieSlice(cx, cy, r, start, end, color) {
+  if (end - start >= 360) end = 359.99;
+  const s = polarToCartesian(cx, cy, r, start);
+  const e = polarToCartesian(cx, cy, r, end);
+  const large = end - start > 180 ? 1 : 0;
+  return `<path d="M${cx},${cy} L${s.x},${s.y} A${r},${r} 0 ${large},1 ${e.x},${e.y} Z" fill="${color}" stroke="white" stroke-width="1.5"/>`;
+}
+
+function drawPie(holders) {
+  const cx=60, cy=60, r=55;
+  let paths="", angle=0;
+  holders.filter(h=>h.name!=="ΣΥΝΟΛΟ").forEach(h => {
+    const slice = h.pct / 100 * 360;
+    paths += pieSlice(cx, cy, r, angle, angle+slice, h.color);
+    angle += slice;
+  });
+  document.getElementById("pieSvg").innerHTML = paths;
+  const leg = holders.filter(h=>h.name!=="ΣΥΝΟΛΟ").map(h =>
+    `<div class="legend-item">
+      <div class="legend-dot" style="background:${h.color}"></div>
+      <div class="legend-name">${h.name.split(" ")[0]}</div>
+      <div class="legend-pct">${h.pct}%</div>
+    </div>`
+  ).join("");
+  document.getElementById("pieLegend").innerHTML = leg;
+}
+
+function renderVesting() {
+  const v = getVestedPct();
+  document.getElementById("vestingContent").innerHTML = ["George Michailidis","Lefteris Anastasiadis"].map(name => `
+    <div class="founder-vesting">
+      <div class="founder-name-v">
+        <span>${name}</span>
+        <span class="vested-badge">${v.label}</span>
+      </div>
+      <div class="vesting-bar-bg">
+        <div class="vesting-bar-fill" style="width:${v.pct}%"></div>
+      </div>
+      <div class="vesting-milestones">
+        <span>Μήνας 0</span><span>Cliff (Μ12)</span><span>50%</span><span>75%</span><span>100% (Μ48)</span>
+      </div>
+    </div>`).join("");
+}
+
+function renderCapTable(holders) {
+  document.getElementById("capBody").innerHTML = holders.map((h,i) => {
+    if(h.name==="ΣΥΝΟΛΟ") return `<tr><td><strong>${h.name}</strong></td><td><strong>${h.shares.toLocaleString('el-GR')}</strong></td><td><strong>${h.pct}%</strong></td><td><strong>${h.value}</strong></td><td>${h.role}</td></tr>`;
+    return `<tr>
+      <td style="font-weight:500">${h.name}</td>
+      <td>${h.shares.toLocaleString('el-GR')}</td>
+      <td>
+        <div style="font-weight:700;color:${h.color}">${h.pct}%</div>
+        <div class="share-bar"><div class="share-fill" style="width:${h.pct}%;background:${h.color}"></div></div>
+      </td>
+      <td style="color:#1B5E20;font-weight:500">${h.value}</td>
+      <td style="font-size:12px;color:#666">${h.role}</td>
+    </tr>`;
+  }).join("");
+}
+
+function renderStageInfo(stage) {
+  document.getElementById("stageInfo").innerHTML = `
+    <div>
+      <div class="stage-title">${stage.name}</div>
+      <div style="font-size:12px;color:#888;margin-top:4px">${stage.round}</div>
+    </div>
+    <div class="stage-meta">
+      <div class="meta-item"><span class="meta-val purple">${stage.premoney}</span><div class="meta-lbl">Pre-money</div></div>
+      <div class="meta-item"><span class="meta-val green">${stage.postmoney}</span><div class="meta-lbl">Post-money</div></div>
+      <div class="meta-item"><span class="meta-val">${stage.capital}</span><div class="meta-lbl">Κεφάλαιο</div></div>
+      <div class="meta-item"><span class="meta-val" style="color:#C62828">${stage.dilution}</span><div class="meta-lbl">Dilution</div></div>
+    </div>`;
+}
+
+function highlightDilution(stageIdx) {
+  document.querySelectorAll('.dil-table td').forEach(td => td.classList.remove('cur-stage'));
+  ['d-g','d-l'].forEach(prefix => {
+    const el = document.getElementById(prefix+stageIdx);
+    if(el) el.classList.add('cur-stage');
+  });
+}
+
+function setStage(idx) {
+  currentStage = idx;
+  document.querySelectorAll('.stage-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  const stage = STAGES[idx];
+  renderStageInfo(stage);
+  drawPie(stage.holders);
+  renderCapTable(stage.holders);
+  highlightDilution(idx);
+}
+
+// Init
+renderVesting();
+setStage(0);
+</script>
+</body>
+</html>
