@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Social Media Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#5B2D8E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600}
+.header p{color:#D4BFFF;font-size:12px;margin-top:2px}
+.main{max-width:1100px;margin:0 auto;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.stat{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:600;color:#5B2D8E}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.toolbar input,.toolbar select{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.toolbar input{flex:1;min-width:160px}
+.add-btn{padding:7px 16px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500}
+.add-form{background:#F3EFFE;border:0.5px solid #D4BFFF;border-radius:12px;padding:16px;margin-bottom:16px;display:none}
+.add-form h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:#888;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.form-group textarea{resize:vertical;min-height:60px}
+.save-btn{padding:7px 20px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;margin-right:8px}
+.cancel-btn{padding:7px 20px;border-radius:8px;border:0.5px solid #D1C4E9;background:white;color:#555;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px}
+.posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.post-card{background:white;border:0.5px solid #E0D6FF;border-radius:12px;overflow:hidden;transition:box-shadow 0.2s}
+.post-card:hover{box-shadow:0 4px 20px rgba(91,45,142,0.1)}
+.post-card.published{border-color:#C8E6C9}
+.post-card.overdue{border-color:#FFCDD2}
+.card-header{padding:12px 14px;border-bottom:0.5px solid #F3EFFE;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.platform-badge{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.p-instagram{background:#F3E5F5;color:#7B1FA2}
+.p-linkedin{background:#E3F2FD;color:#0D47A1}
+.p-tiktok{background:#F1F8E9;color:#33691E}
+.p-facebook{background:#E8EAF6;color:#283593}
+.p-all{background:#FFF8E1;color:#E65100}
+.status-badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer}
+.s0{background:#F1EFE8;color:#5F5E5A}
+.s1{background:#E3F2FD;color:#185FA5}
+.s2{background:#FFF8E1;color:#E65100}
+.s3{background:#E8F5E9;color:#1B5E20}
+.card-body{padding:12px 14px}
+.post-date{font-size:11px;color:#888;margin-bottom:6px}
+.post-date.overdue{color:#C62828;font-weight:600}
+.post-title{font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:6px;line-height:1.4}
+.post-caption{font-size:12px;color:#666;line-height:1.5;margin-bottom:8px;max-height:60px;overflow:hidden}
+.post-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.tag{font-size:10px;padding:2px 6px;border-radius:4px;background:#F3EFFE;color:#5B2D8E}
+.card-actions{padding:8px 14px;background:#FAFAFA;border-top:0.5px solid #F3EFFE;display:flex;gap:6px;justify-content:flex-end}
+.act-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:0.5px solid #E0D6FF;background:white;color:#5B2D8E;cursor:pointer;font-family:'DM Sans',sans-serif}
+.act-btn:hover{background:#F3EFFE}
+.act-btn.del{color:#C62828;border-color:#FFCDD2}
+.act-btn.del:hover{background:#FFEBEE}
+.empty{text-align:center;color:#AAA;padding:40px;grid-column:1/-1}
+.content-type-badge{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.ct-educational{background:#E8F5E9;color:#1B5E20}
+.ct-promotional{background:#E3F2FD;color:#0D47A1}
+.ct-social-proof{background:#FFF8E1;color:#E65100}
+.ct-news{background:#F3EFFE;color:#5B2D8E}
+.ct-engagement{background:#FCE4EC;color:#880E4F}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>📱 Spitakey — Social Media Calendar</h1>
+    <p>Content planning · Instagram · LinkedIn · TikTok · Facebook</p>
+  </div>
+  <div style="color:#D4BFFF;font-size:12px;text-align:right">spitakey.gr · Launch period</div>
+</div>
+<div class="main">
+  <div class="stats" id="statsRow"></div>
+  <div class="toolbar">
+    <input type="text" id="searchBox" placeholder="🔍 Αναζήτηση post..." oninput="render()" />
+    <select id="filterPlatform" onchange="render()">
+      <option value="">Όλες πλατφόρμες</option>
+      <option>Instagram</option><option>LinkedIn</option>
+      <option>TikTok</option><option>Facebook</option><option>Όλες</option>
+    </select>
+    <select id="filterStatus" onchange="render()">
+      <option value="">Όλα τα status</option>
+      <option>Draft</option><option>Ready</option>
+      <option>Scheduled</option><option>Published</option>
+    </select>
+    <select id="filterType" onchange="render()">
+      <option value="">Όλοι τύποι</option>
+      <option>Educational</option><option>Promotional</option>
+      <option>Social Proof</option><option>News</option><option>Engagement</option>
+    </select>
+    <button class="add-btn" onclick="toggleForm()">+ Νέο post</button>
+  </div>
+
+  <div class="add-form" id="addForm">
+    <h3>+ Νέο Post</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Τίτλος</label><input id="f-title" placeholder="π.χ. Τι αλλάζει 1 Οκτωβρίου"/></div>
+      <div class="form-group"><label>Πλατφόρμα</label>
+        <select id="f-platform"><option>Instagram</option><option>LinkedIn</option><option>TikTok</option><option>Facebook</option><option>Όλες</option></select>
+      </div>
+      <div class="form-group"><label>Τύπος</label>
+        <select id="f-type"><option>Educational</option><option>Promotional</option><option>Social Proof</option><option>News</option><option>Engagement</option></select>
+      </div>
+      <div class="form-group"><label>Ημ/νία δημοσίευσης</label><input type="date" id="f-date"/></div>
+      <div class="form-group"><label>Status</label>
+        <select id="f-status"><option>Draft</option><option>Ready</option><option>Scheduled</option><option>Published</option></select>
+      </div>
+      <div class="form-group"><label>Hashtags</label><input id="f-tags" placeholder="#spitakey #proptech"/></div>
+      <div class="form-group" style="grid-column:1/-1"><label>Caption / Κείμενο post</label>
+        <textarea id="f-caption" placeholder="Κείμενο του post..."></textarea>
+      </div>
+    </div>
+    <button class="save-btn" onclick="addPost()">Αποθήκευση</button>
+    <button class="cancel-btn" onclick="toggleForm()">Άκυρο</button>
+  </div>
+
+  <div class="posts-grid" id="postsGrid"></div>
+</div>
+
+<script>
+const KEY="spitakey_social_v1";
+const STATUSES=["Draft","Ready","Scheduled","Published"];
+const SC=["s0","s1","s2","s3"];
+const PLAT_CLASS={Instagram:"p-instagram",LinkedIn:"p-linkedin",TikTok:"p-tiktok",Facebook:"p-facebook","Όλες":"p-all"};
+const TYPE_CLASS={Educational:"ct-educational",Promotional:"ct-promotional","Social Proof":"ct-social-proof",News:"ct-news",Engagement:"ct-engagement"};
+
+const DEFAULT_POSTS=[
+  {id:"p1",title:"Τι αλλάζει 1η Οκτωβρίου 2026 — Ο οδηγός για landlords",platform:"LinkedIn",type:"Educational",date:"2026-05-20",status:"Draft",tags:"#spitakey #nomos5222 #enoikio",caption:"Από 1η Οκτωβρίου 2026, η πληρωμή ενοικίου σε μετρητά γίνεται παράνομη (Ν.5222/2025). Τι σημαίνει αυτό για εσάς ως landlord και πώς να είστε έτοιμοι;"},
+  {id:"p2",title:"5 λόγοι που το Spitakey σας σώζει χρόνο",platform:"Instagram",type:"Promotional",date:"2026-05-22",status:"Draft",tags:"#spitakey #proptech #landlord",caption:"✅ KYC verified tenants\n✅ Ψηφιακό μισθωτήριο\n✅ Αυτόματη πληρωμή\n✅ Escrow εγγύηση\n✅ Trust Score\n\nΌλα σε ένα μέρος. Δωρεάν εγγραφή στο spitakey.gr"},
+  {id:"p3",title:"Behind the scenes — Πώς χτίζουμε το Spitakey",platform:"LinkedIn",type:"Social Proof",date:"2026-05-25",status:"Draft",tags:"#startup #proptech #spitakey #founder",caption:"6 μήνες coding, 147 test cases, 10 real listings. Χτίζουμε κάτι που η αγορά πραγματικά χρειάζεται."},
+  {id:"p4",title:"Ξέρεις το Trust Score σου;",platform:"Instagram",type:"Engagement",date:"2026-05-28",status:"Draft",tags:"#spitakey #trustscore #tenant",caption:"Κάθε μήνα που πληρώνεις στην ώρα σου: +2 points. Κάθε verified landlord που σε αξιολογεί θετικά: +2 points. Χτίσε τη φήμη σου ως tenant — spitakey.gr"},
+  {id:"p5",title:"Launch week — Το Spitakey είναι live!",platform:"Όλες",type:"News",date:"2026-07-01",status:"Draft",tags:"#spitakey #launch #proptech #greece",caption:"🚀 Μετά από μήνες δουλειάς — είμαστε live! Ψηφιακές μισθώσεις για όλους τους Έλληνες landlords και tenants. Δωρεάν εγγραφή: spitakey.gr"},
+  {id:"p6",title:"Πώς να κάνεις KYC σε 2 λεπτά",platform:"TikTok",type:"Educational",date:"2026-07-05",status:"Draft",tags:"#spitakey #kyc #govgr #landlord",caption:"Tutorial: Gov.gr login → E9 upload → Verified badge. 2 λεπτά και τελείωσε. 🎬 [Link to video L2 onboarding]"},
+  {id:"p7",title:"Το πρώτο μας verified lease! 🎉",platform:"LinkedIn",type:"Social Proof",date:"2026-07-15",status:"Draft",tags:"#spitakey #milestone #proptech",caption:"Χθες ολοκληρώθηκε το πρώτο verified lease μέσω Spitakey. Verified KYC, ψηφιακή υπογραφή, αυτόματη πληρωμή — ακριβώς όπως το σχεδιάσαμε."},
+];
+
+function load(){try{const s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}return DEFAULT_POSTS;}
+let data=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}}
+function gid(){return"p"+Date.now();}
+function fmtDate(d){if(!d)return"—";return new Date(d).toLocaleDateString('el-GR',{day:'numeric',month:'short',year:'numeric'});}
+function isOverdue(d,status){return d&&new Date(d)<new Date()&&status!=="Published";}
+
+function toggleForm(){const f=document.getElementById("addForm");f.style.display=f.style.display==="none"||!f.style.display?"block":"none";}
+
+function addPost(){
+  const title=document.getElementById("f-title").value.trim();
+  if(!title){alert("Βάλε τίτλο!");return;}
+  data.push({id:gid(),title,platform:document.getElementById("f-platform").value,type:document.getElementById("f-type").value,date:document.getElementById("f-date").value,status:document.getElementById("f-status").value,tags:document.getElementById("f-tags").value,caption:document.getElementById("f-caption").value});
+  save();
+  document.getElementById("addForm").style.display="none";
+  ["f-title","f-tags","f-caption"].forEach(id=>document.getElementById(id).value="");
+  render();
+}
+
+function delPost(id){if(confirm("Διαγραφή post;")){{data=data.filter(d=>d.id!==id);save();render();}}}
+function cycleStatus(id){const d=data.find(x=>x.id===id);if(!d)return;const n=(STATUSES.indexOf(d.status)+1)%STATUSES.length;d.status=STATUSES[n];save();render();}
+
+function renderStats(){
+  const counts={};STATUSES.forEach(s=>counts[s]=0);data.forEach(d=>counts[d.status]=(counts[d.status]||0)+1);
+  const platforms={Instagram:0,LinkedIn:0,TikTok:0,Facebook:0};
+  data.forEach(d=>{if(platforms[d.platform]!==undefined)platforms[d.platform]++;});
+  document.getElementById("statsRow").innerHTML=[
+    {l:"Σύνολο posts",v:data.length},
+    {l:"Draft",v:counts["Draft"]||0},
+    {l:"Ready/Scheduled",v:(counts["Ready"]||0)+(counts["Scheduled"]||0)},
+    {l:"Published ✅",v:counts["Published"]||0},
+    {l:"Instagram / LinkedIn",v:`${platforms.Instagram}/${platforms.LinkedIn}`},
+  ].map(s=>`<div class="stat"><div class="stat-num">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join("");
+}
+
+function render(){
+  const q=document.getElementById("searchBox").value.toLowerCase();
+  const fp=document.getElementById("filterPlatform").value;
+  const fs=document.getElementById("filterStatus").value;
+  const ft=document.getElementById("filterType").value;
+  const fil=data.filter(d=>{
+    if(q&&!d.title.toLowerCase().includes(q)&&!d.caption.toLowerCase().includes(q))return false;
+    if(fp&&d.platform!==fp)return false;
+    if(fs&&d.status!==fs)return false;
+    if(ft&&d.type!==ft)return false;
+    return true;
+  });
+  fil.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const grid=document.getElementById("postsGrid");
+  if(!fil.length){grid.innerHTML=`<div class="empty">Δεν βρέθηκαν posts</div>`;renderStats();return;}
+  const si=STATUSES.indexOf;
+  grid.innerHTML=fil.map(d=>{
+    const bi=STATUSES.indexOf(d.status);
+    const sc=SC[bi]||"s0";
+    const overdue=isOverdue(d.date,d.status);
+    const pc=PLAT_CLASS[d.platform]||"p-all";
+    const tc=TYPE_CLASS[d.type]||"ct-educational";
+    const tags=(d.tags||"").split(" ").filter(t=>t).slice(0,4);
+    return`<div class="post-card${d.status==='Published'?' published':''}${overdue?' overdue':''}">
+      <div class="card-header">
+        <span class="platform-badge ${pc}">${d.platform}</span>
+        <span class="content-type-badge ${tc}">${d.type}</span>
+        <span class="status-badge ${sc}" onclick="cycleStatus('${d.id}')">${d.status}</span>
+      </div>
+      <div class="card-body">
+        <div class="post-date${overdue?' overdue':''}">${overdue?'⚠️ ':''} 📅 ${fmtDate(d.date)}</div>
+        <div class="post-title">${d.title}</div>
+        ${d.caption?`<div class="post-caption">${d.caption}</div>`:''}
+        ${tags.length?`<div class="post-tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`:''}
+      </div>
+      <div class="card-actions">
+        <button class="act-btn" onclick="cycleStatus('${d.id}')">▶ Επόμενο status</button>
+        <button class="act-btn del" onclick="delPost('${d.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join("");
+  renderStats();
+}
+render();
+</script>
+</body>
+</html>

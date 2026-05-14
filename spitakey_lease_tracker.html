@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Lease Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#5B2D8E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600}
+.header p{color:#D4BFFF;font-size:12px;margin-top:2px}
+.main{max-width:1200px;margin:0 auto;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.stat{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:600;color:#5B2D8E}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.toolbar input,.toolbar select{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.toolbar input{flex:1;min-width:160px}
+.add-btn{padding:7px 16px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500}
+.add-btn:hover{background:#4A235A}
+.add-form{background:#F3EFFE;border:0.5px solid #D4BFFF;border-radius:12px;padding:16px;margin-bottom:16px;display:none}
+.add-form h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:#888;font-weight:500}
+.form-group input,.form-group select{font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.save-btn{padding:7px 20px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;margin-right:8px}
+.cancel-btn{padding:7px 20px;border-radius:8px;border:0.5px solid #D1C4E9;background:white;color:#555;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px}
+.tbl-wrap{background:white;border:0.5px solid #E0D6FF;border-radius:12px;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:1000px}
+th{background:#F9F5FF;color:#4A235A;font-weight:500;font-size:12px;padding:10px 12px;text-align:left;border-bottom:0.5px solid #E0D6FF;white-space:nowrap}
+td{padding:8px 12px;border-bottom:0.5px solid #F3EFFE;vertical-align:middle;font-size:13px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFF}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap}
+.s-active{background:#E8F5E9;color:#1B5E20}
+.s-pending{background:#FFF8E1;color:#E65100}
+.s-late{background:#FFEBEE;color:#C62828}
+.s-expiring{background:#F3EFFE;color:#5B2D8E}
+.s-ended{background:#F1EFE8;color:#5F5E5A}
+.pay-ok{color:#1B5E20;font-weight:600}
+.pay-late{color:#C62828;font-weight:600}
+.pay-pending{color:#E65100}
+.del-btn{background:none;border:none;cursor:pointer;color:#CCC;font-size:14px;padding:2px 5px;border-radius:4px}
+.del-btn:hover{color:#C62828;background:#FFEBEE}
+.empty td{text-align:center;color:#AAA;padding:32px}
+.expiring-soon{background:#FFF8E1!important}
+.revenue-total{background:#F3EFFE;border:0.5px solid #D4BFFF;border-radius:10px;padding:12px 18px;margin-top:12px;display:flex;gap:24px;flex-wrap:wrap}
+.rev-item span:first-child{font-size:12px;color:#888}
+.rev-item span:last-child{font-size:15px;font-weight:700;color:#5B2D8E;margin-left:8px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>🏠 Spitakey — Lease Tracker</h1>
+    <p>Παρακολούθηση ενεργών & ιστορικών μισθώσεων</p>
+  </div>
+  <div style="color:#D4BFFF;font-size:12px;text-align:right">spitakey.gr · Στόχος Y1: 200 leases</div>
+</div>
+<div class="main">
+  <div class="stats" id="statsRow"></div>
+  <div class="toolbar">
+    <input type="text" id="searchBox" placeholder="🔍 Αναζήτηση landlord / tenant..." oninput="render()" />
+    <select id="filterStatus" onchange="render()">
+      <option value="">Όλα τα status</option>
+      <option>Ενεργό</option><option>Εκκρεμεί υπογραφή</option>
+      <option>Εκπρόθεσμη πληρωμή</option><option>Λήγει σύντομα</option><option>Έληξε</option>
+    </select>
+    <select id="filterPay" onchange="render()">
+      <option value="">Όλες πληρωμές</option>
+      <option value="ok">✅ Ενήμερο</option>
+      <option value="late">❌ Εκπρόθεσμο</option>
+      <option value="pending">⏳ Αναμένει</option>
+    </select>
+    <button class="add-btn" onclick="toggleForm()">+ Νέο lease</button>
+  </div>
+
+  <div class="add-form" id="addForm">
+    <h3>+ Νέο Lease</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Landlord</label><input id="f-landlord" placeholder="Όνομα landlord"/></div>
+      <div class="form-group"><label>Tenant</label><input id="f-tenant" placeholder="Όνομα tenant"/></div>
+      <div class="form-group"><label>Διεύθυνση</label><input id="f-address" placeholder="Οδός, Αθήνα"/></div>
+      <div class="form-group"><label>Μηνιαίο Ενοίκιο (€)</label><input type="number" id="f-rent" placeholder="800"/></div>
+      <div class="form-group"><label>Εγγύηση (€)</label><input type="number" id="f-deposit" placeholder="1600"/></div>
+      <div class="form-group"><label>Έναρξη</label><input type="date" id="f-start"/></div>
+      <div class="form-group"><label>Λήξη</label><input type="date" id="f-end"/></div>
+      <div class="form-group"><label>Status</label>
+        <select id="f-status">
+          <option>Εκκρεμεί υπογραφή</option><option>Ενεργό</option>
+          <option>Εκπρόθεσμη πληρωμή</option><option>Έληξε</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Πληρωμή</label>
+        <select id="f-pay">
+          <option value="ok">✅ Ενήμερο</option>
+          <option value="pending">⏳ Αναμένει</option>
+          <option value="late">❌ Εκπρόθεσμο</option>
+        </select>
+      </div>
+    </div>
+    <button class="save-btn" onclick="addLease()">Αποθήκευση</button>
+    <button class="cancel-btn" onclick="toggleForm()">Άκυρο</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Landlord</th><th>Tenant</th><th>Διεύθυνση</th>
+        <th>Ενοίκιο</th><th>Εγγύηση</th><th>Έναρξη</th><th>Λήξη</th>
+        <th>Status</th><th>Πληρωμή</th><th>Spitakey (4%)</th><th></th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="revenue-total" id="revTotal"></div>
+</div>
+
+<script>
+const KEY="spitakey_leases_v1";
+const STATUSES=["Εκκρεμεί υπογραφή","Ενεργό","Εκπρόθεσμη πληρωμή","Λήγει σύντομα","Έληξε"];
+const SC={"Ενεργό":"s-active","Εκκρεμεί υπογραφή":"s-pending","Εκπρόθεσμη πληρωμή":"s-late","Λήγει σύντομα":"s-expiring","Έληξε":"s-ended"};
+const PC={"ok":"pay-ok","late":"pay-late","pending":"pay-pending"};
+const PL={"ok":"✅ Ενήμερο","late":"❌ Εκπρόθεσμο","pending":"⏳ Αναμένει"};
+
+function load(){try{const s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}return[];}
+let data=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}}
+function gid(){return"l"+Date.now();}
+function fmtDate(d){if(!d)return"—";return new Date(d).toLocaleDateString('el-GR',{day:'numeric',month:'short',year:'numeric'});}
+function fmtEur(n){return"€"+(parseInt(n)||0).toLocaleString('el-GR');}
+function daysUntil(d){if(!d)return null;return Math.round((new Date(d)-new Date())/(1000*60*60*24));}
+
+function toggleForm(){const f=document.getElementById("addForm");f.style.display=f.style.display==="none"||!f.style.display?"block":"none";}
+
+function addLease(){
+  const landlord=document.getElementById("f-landlord").value.trim();
+  const tenant=document.getElementById("f-tenant").value.trim();
+  if(!landlord||!tenant){alert("Βάλε landlord και tenant!");return;}
+  const rent=parseInt(document.getElementById("f-rent").value)||0;
+  data.push({
+    id:gid(),landlord,tenant,
+    address:document.getElementById("f-address").value,
+    rent,deposit:parseInt(document.getElementById("f-deposit").value)||rent*2,
+    start:document.getElementById("f-start").value,
+    end:document.getElementById("f-end").value,
+    status:document.getElementById("f-status").value,
+    pay:document.getElementById("f-pay").value,
+  });
+  save();
+  document.getElementById("addForm").style.display="none";
+  ["f-landlord","f-tenant","f-address","f-rent","f-deposit","f-start","f-end"].forEach(id=>document.getElementById(id).value="");
+  render();
+}
+
+function delLease(id){if(confirm("Διαγραφή lease;")){{data=data.filter(d=>d.id!==id);save();render();}}}
+function cycleStatus(id){
+  const d=data.find(x=>x.id===id);if(!d)return;
+  const n=(STATUSES.indexOf(d.status)+1)%STATUSES.length;
+  d.status=STATUSES[n];save();render();
+}
+function cyclePay(id){
+  const d=data.find(x=>x.id===id);if(!d)return;
+  const opts=["ok","pending","late"];
+  const n=(opts.indexOf(d.pay)+1)%opts.length;
+  d.pay=opts[n];save();render();
+}
+
+function renderStats(){
+  const active=data.filter(d=>d.status==="Ενεργό").length;
+  const late=data.filter(d=>d.pay==="late").length;
+  const totalRev=data.filter(d=>d.status==="Ενεργό").reduce((a,d)=>a+(parseInt(d.rent)||0),0);
+  const spitakey=Math.round(totalRev*0.04);
+  const expiring=data.filter(d=>{const days=daysUntil(d.end);return days!==null&&days<=60&&days>0;}).length;
+  document.getElementById("statsRow").innerHTML=[
+    {l:"Σύνολο Leases",v:data.length},
+    {l:"Ενεργά",v:active},
+    {l:"Εκπρόθεσμα",v:late},
+    {l:"Λήγουν <60 ημέρες",v:expiring},
+    {l:"Monthly Revenue",v:fmtEur(totalRev)},
+  ].map(s=>`<div class="stat"><div class="stat-num">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join("");
+
+  const totalDeposit=data.reduce((a,d)=>a+(parseInt(d.deposit)||0),0);
+  document.getElementById("revTotal").innerHTML=`
+    <div class="rev-item"><span>Monthly Revenue (total):</span><span>${fmtEur(totalRev)}</span></div>
+    <div class="rev-item"><span>Spitakey 4% fee/μήνα:</span><span>${fmtEur(spitakey)}</span></div>
+    <div class="rev-item"><span>Spitakey ARR (projection):</span><span>${fmtEur(spitakey*12)}</span></div>
+    <div class="rev-item"><span>Εγγυήσεις escrow:</span><span>${fmtEur(totalDeposit)}</span></div>`;
+}
+
+function render(){
+  const q=document.getElementById("searchBox").value.toLowerCase();
+  const fs=document.getElementById("filterStatus").value;
+  const fp=document.getElementById("filterPay").value;
+
+  // Auto-flag expiring
+  data.forEach(d=>{
+    const days=daysUntil(d.end);
+    if(days!==null&&days<=60&&days>0&&d.status==="Ενεργό")d.status="Λήγει σύντομα";
+  });
+
+  const fil=data.filter(d=>{
+    if(q&&!d.landlord.toLowerCase().includes(q)&&!d.tenant.toLowerCase().includes(q)&&!d.address.toLowerCase().includes(q))return false;
+    if(fs&&d.status!==fs)return false;
+    if(fp&&d.pay!==fp)return false;
+    return true;
+  });
+
+  const tbody=document.getElementById("tbody");
+  if(!fil.length){tbody.innerHTML=`<tr class="empty"><td colspan="12">Δεν υπάρχουν leases ακόμα — πρόσθεσε το πρώτο!</td></tr>`;renderStats();return;}
+
+  tbody.innerHTML=fil.map((d,i)=>{
+    const days=daysUntil(d.end);
+    const rowCls=days!==null&&days<=30&&days>0?"expiring-soon":"";
+    const fee=Math.round((parseInt(d.rent)||0)*0.04);
+    return`<tr class="${rowCls}">
+      <td style="color:#AAA;font-size:12px">${i+1}</td>
+      <td style="font-weight:500">${d.landlord||"—"}</td>
+      <td>${d.tenant||"—"}</td>
+      <td style="color:#666;font-size:12px">${d.address||"—"}</td>
+      <td style="font-weight:600;color:#5B2D8E">${fmtEur(d.rent)}</td>
+      <td style="color:#666">${fmtEur(d.deposit)}</td>
+      <td style="font-size:12px;color:#666">${fmtDate(d.start)}</td>
+      <td style="font-size:12px;${days!==null&&days<=30&&days>0?'color:#C62828;font-weight:600':'color:#666'}">${fmtDate(d.end)}${days!==null&&days<=60&&days>0?` <span style="font-size:10px">(${days}η)</span>`:""}</td>
+      <td><span class="badge ${SC[d.status]||'s-pending'}" onclick="cycleStatus('${d.id}')">${d.status}</span></td>
+      <td><span class="badge ${d.pay==='ok'?'s-active':d.pay==='late'?'s-late':'s-expiring'}" onclick="cyclePay('${d.id}')">${PL[d.pay]||"—"}</span></td>
+      <td style="font-weight:600;color:#1B5E20">${fmtEur(fee)}</td>
+      <td><button class="del-btn" onclick="delLease('${d.id}')" title="Διαγραφή">✕</button></td>
+    </tr>`;
+  }).join("");
+  renderStats();
+}
+render();
+</script>
+</body>
+</html>

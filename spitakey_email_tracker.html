@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Email Campaign Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#5B2D8E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600}
+.header p{color:#D4BFFF;font-size:12px;margin-top:2px}
+.main{max-width:1100px;margin:0 auto;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.stat{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:600;color:#5B2D8E}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.toolbar input,.toolbar select{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.toolbar input{flex:1;min-width:160px}
+.add-btn{padding:7px 16px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500}
+.add-btn:hover{background:#4A235A}
+.add-form{background:#F3EFFE;border:0.5px solid #D4BFFF;border-radius:12px;padding:16px;margin-bottom:16px;display:none}
+.add-form h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:#888;font-weight:500}
+.form-group input,.form-group select{font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.save-btn{padding:7px 20px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;margin-right:8px}
+.cancel-btn{padding:7px 20px;border-radius:8px;border:0.5px solid #D1C4E9;background:white;color:#555;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px}
+.tbl-wrap{background:white;border:0.5px solid #E0D6FF;border-radius:12px;overflow:hidden;overflow-x:auto;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th{background:#F9F5FF;color:#4A235A;font-weight:500;font-size:12px;padding:10px 12px;text-align:left;border-bottom:0.5px solid #E0D6FF;white-space:nowrap}
+td{padding:8px 12px;border-bottom:0.5px solid #F3EFFE;vertical-align:middle;font-size:13px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFF}
+.editable{background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:13px;color:#1A1A1A;width:100%;outline:none;min-width:80px}
+.editable:focus{background:#F3EFFE;border-radius:4px;padding:1px 4px}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap}
+.s0{background:#F1EFE8;color:#5F5E5A}
+.s1{background:#E3F2FD;color:#185FA5}
+.s2{background:#FFF8E1;color:#E65100}
+.s3{background:#E8F5E9;color:#1B5E20}
+.s4{background:#FFEBEE;color:#C62828}
+.rate-bar{height:6px;background:#F0F0F0;border-radius:3px;overflow:hidden;margin-top:3px}
+.rate-fill{height:100%;border-radius:3px}
+.rate-open{background:#5B2D8E}
+.rate-reply{background:#1B5E20}
+.rate-click{background:#E65100}
+.del-btn{background:none;border:none;cursor:pointer;color:#CCC;font-size:14px;padding:2px 5px;border-radius:4px}
+.del-btn:hover{color:#C62828;background:#FFEBEE}
+.empty td{text-align:center;color:#AAA;padding:32px}
+.audience-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.a-landlord{background:#E3F2FD;color:#0D47A1}
+.a-tenant{background:#E8F5E9;color:#1B5E20}
+.a-partner{background:#FFF8E1;color:#E65100}
+.a-investor{background:#F3EFFE;color:#5B2D8E}
+.a-all{background:#F1EFE8;color:#5F5E5A}
+.summary-row{background:#F3EFFE;border:0.5px solid #D4BFFF;border-radius:10px;padding:12px 18px;display:flex;gap:24px;flex-wrap:wrap}
+.sum-item span:first-child{font-size:12px;color:#888}
+.sum-item span:last-child{font-size:15px;font-weight:700;color:#5B2D8E;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>📧 Spitakey — Email Campaign Tracker</h1>
+    <p>Παρακολούθηση outreach emails · Open rate · Reply rate</p>
+  </div>
+  <div style="color:#D4BFFF;font-size:12px;text-align:right">spitakey.gr · Μάιος 2026</div>
+</div>
+<div class="main">
+  <div class="stats" id="statsRow"></div>
+  <div class="toolbar">
+    <input type="text" id="searchBox" placeholder="🔍 Αναζήτηση καμπάνιας / παραλήπτη..." oninput="render()" />
+    <select id="filterAud" onchange="render()">
+      <option value="">Όλα τα κοινά</option>
+      <option>Landlord</option><option>Tenant</option>
+      <option>Partner</option><option>Investor</option><option>Όλοι</option>
+    </select>
+    <select id="filterStatus" onchange="render()">
+      <option value="">Όλα τα status</option>
+      <option>Draft</option><option>Στάλθηκε</option>
+      <option>Άνοιξε</option><option>Απάντησε ✅</option><option>Αρνητικό</option>
+    </select>
+    <button class="add-btn" onclick="toggleForm()">+ Νέο email</button>
+  </div>
+
+  <div class="add-form" id="addForm">
+    <h3>+ Νέο Email / Καμπάνια</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Τίτλος / Θέμα</label><input id="f-title" placeholder="π.χ. Παρουσίαση Spitakey στο ΠΟΜΙΔΑ"/></div>
+      <div class="form-group"><label>Παραλήπτης / Λίστα</label><input id="f-to" placeholder="π.χ. ΠΟΜΙΔΑ members"/></div>
+      <div class="form-group"><label>Κοινό</label>
+        <select id="f-aud"><option>Landlord</option><option>Tenant</option><option>Partner</option><option>Investor</option><option>Όλοι</option></select>
+      </div>
+      <div class="form-group"><label>Template</label>
+        <select id="f-template"><option>E05 — Παρουσίαση</option><option>E01 — Welcome</option><option>E03 — KYC Approved</option><option>Custom</option></select>
+      </div>
+      <div class="form-group"><label>Αριθμός αποστολής</label><input type="number" id="f-sent" placeholder="1"/></div>
+      <div class="form-group"><label>Ημ/νία αποστολής</label><input type="date" id="f-date"/></div>
+      <div class="form-group"><label>Status</label>
+        <select id="f-status"><option>Draft</option><option>Στάλθηκε</option><option>Άνοιξε</option><option>Απάντησε ✅</option><option>Αρνητικό</option></select>
+      </div>
+      <div class="form-group"><label>Follow-up ημ/νία</label><input type="date" id="f-follow"/></div>
+    </div>
+    <button class="save-btn" onclick="addEmail()">Αποθήκευση</button>
+    <button class="cancel-btn" onclick="toggleForm()">Άκυρο</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Τίτλος / Θέμα</th><th>Παραλήπτης</th><th>Κοινό</th>
+        <th>Template</th><th>Απεστάλη</th><th>Ημ/νία</th>
+        <th>Open Rate</th><th>Reply Rate</th>
+        <th>Status</th><th>Follow-up</th><th></th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="summary-row" id="summaryRow"></div>
+</div>
+
+<script>
+const KEY="spitakey_email_v1";
+const STATUSES=["Draft","Στάλθηκε","Άνοιξε","Απάντησε ✅","Αρνητικό"];
+const SC=["s0","s1","s2","s3","s4"];
+const AUD_CLASS={Landlord:"a-landlord",Tenant:"a-tenant",Partner:"a-partner",Investor:"a-investor","Όλοι":"a-all"};
+
+const DEFAULT=[
+  {id:"e1",title:"Παρουσίαση Spitakey — Συνεργασία",to:"ΠΟΜΙΔΑ (Δ.Σ.)",aud:"Partner",template:"E05 — Παρουσίαση",sent:1,date:"",status:"Draft",follow:"2026-06-01",openRate:0,replyRate:0},
+  {id:"e2",title:"Καλώς ήρθες στο Spitakey — Landlord onboarding",to:"Φίλοι/συγγενείς landlords (20)",aud:"Landlord",template:"E05 — Παρουσίαση",sent:20,date:"",status:"Draft",follow:"2026-05-20",openRate:0,replyRate:0},
+  {id:"e3",title:"Spitakey Launch — Media Coverage Request",to:"Mononews, Iefimerida, Lifo",aud:"Partner",template:"E05 — Παρουσίαση",sent:3,date:"",status:"Draft",follow:"2026-07-05",openRate:0,replyRate:0},
+  {id:"e4",title:"Investor One-Pager — NBG Business Seeds",to:"NBG Seeds Committee",aud:"Investor",template:"Custom",sent:1,date:"",status:"Draft",follow:"2026-07-01",openRate:0,replyRate:0},
+  {id:"e5",title:"Student Badge Partnership",to:"ΕΚΠΑ Career Office, ΕΜΠ",aud:"Partner",template:"E05 — Παρουσίαση",sent:2,date:"",status:"Draft",follow:"2026-09-01",openRate:0,replyRate:0},
+];
+
+function load(){try{const s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}return DEFAULT;}
+let data=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}}
+function gid(){return"e"+Date.now();}
+function fmtDate(d){if(!d)return"—";return new Date(d).toLocaleDateString('el-GR',{day:'numeric',month:'short'});}
+function isOverdue(d,status){return d&&new Date(d)<new Date()&&status!=="Απάντησε ✅"&&status!=="Αρνητικό";}
+
+function toggleForm(){const f=document.getElementById("addForm");f.style.display=f.style.display==="none"||!f.style.display?"block":"none";}
+
+function addEmail(){
+  const title=document.getElementById("f-title").value.trim();
+  if(!title){alert("Βάλε τίτλο!");return;}
+  data.push({id:gid(),title,to:document.getElementById("f-to").value,aud:document.getElementById("f-aud").value,template:document.getElementById("f-template").value,sent:parseInt(document.getElementById("f-sent").value)||1,date:document.getElementById("f-date").value,status:document.getElementById("f-status").value,follow:document.getElementById("f-follow").value,openRate:0,replyRate:0});
+  save();document.getElementById("addForm").style.display="none";
+  ["f-title","f-to","f-sent","f-date","f-follow"].forEach(id=>document.getElementById(id).value="");render();
+}
+
+function delEmail(id){if(confirm("Διαγραφή;")){{data=data.filter(d=>d.id!==id);save();render();}}}
+function cycleStatus(id,el){const d=data.find(x=>x.id===id);if(!d)return;const n=(STATUSES.indexOf(d.status)+1)%STATUSES.length;d.status=STATUSES[n];save();el.textContent=d.status;el.className="badge "+SC[n];renderStats();}
+function updRate(id,field,val){const d=data.find(x=>x.id===id);if(d){d[field]=parseInt(val)||0;save();}}
+
+function renderStats(){
+  const total=data.reduce((a,d)=>a+(parseInt(d.sent)||0),0);
+  const replied=data.filter(d=>d.status==="Απάντησε ✅").length;
+  const avgOpen=data.filter(d=>d.openRate>0).length?Math.round(data.filter(d=>d.openRate>0).reduce((a,d)=>a+d.openRate,0)/data.filter(d=>d.openRate>0).length):0;
+  const avgReply=data.filter(d=>d.replyRate>0).length?Math.round(data.filter(d=>d.replyRate>0).reduce((a,d)=>a+d.replyRate,0)/data.filter(d=>d.replyRate>0).length):0;
+  document.getElementById("statsRow").innerHTML=[
+    {l:"Σύνολο emails",v:data.length},
+    {l:"Συνολικές αποστολές",v:total},
+    {l:"Απάντησαν",v:replied},
+    {l:"Μέσο Open Rate",v:avgOpen+"%"},
+    {l:"Μέσο Reply Rate",v:avgReply+"%"},
+  ].map(s=>`<div class="stat"><div class="stat-num">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join("");
+
+  const overdue=data.filter(d=>isOverdue(d.follow,d.status)).length;
+  document.getElementById("summaryRow").innerHTML=`
+    <div class="sum-item"><span>Συνολικές αποστολές:</span><span>${total}</span></div>
+    <div class="sum-item"><span>Follow-up εκκρεμεί:</span><span style="color:#C62828">${overdue}</span></div>
+    <div class="sum-item"><span>Avg Open Rate:</span><span>${avgOpen}%</span></div>
+    <div class="sum-item"><span>Avg Reply Rate:</span><span>${avgReply}%</span></div>`;
+}
+
+function render(){
+  const q=document.getElementById("searchBox").value.toLowerCase();
+  const fa=document.getElementById("filterAud").value;
+  const fs=document.getElementById("filterStatus").value;
+  const fil=data.filter(d=>{
+    if(q&&!d.title.toLowerCase().includes(q)&&!d.to.toLowerCase().includes(q))return false;
+    if(fa&&d.aud!==fa)return false;
+    if(fs&&d.status!==fs)return false;
+    return true;
+  });
+  const tbody=document.getElementById("tbody");
+  if(!fil.length){tbody.innerHTML=`<tr class="empty"><td colspan="12">Δεν βρέθηκαν emails</td></tr>`;renderStats();return;}
+  fil.sort((a,b)=>new Date(a.date||"9999")-new Date(b.date||"9999"));
+  tbody.innerHTML=fil.map((d,i)=>{
+    const bi=STATUSES.indexOf(d.status);const sc=SC[bi]||"s0";
+    const ac=AUD_CLASS[d.aud]||"a-all";
+    const overdue=isOverdue(d.follow,d.status);
+    return`<tr>
+      <td style="color:#AAA;font-size:12px">${i+1}</td>
+      <td style="font-weight:500;max-width:180px">${d.title}</td>
+      <td style="color:#666;font-size:12px;max-width:140px">${d.to}</td>
+      <td><span class="audience-tag ${ac}">${d.aud}</span></td>
+      <td style="font-size:11px;color:#888">${d.template}</td>
+      <td style="text-align:center;font-weight:500;color:#5B2D8E">${d.sent}</td>
+      <td style="font-size:12px;color:#666">${fmtDate(d.date)}</td>
+      <td>
+        <input class="editable" type="number" value="${d.openRate}" min="0" max="100" onchange="updRate('${d.id}','openRate',this.value)" style="min-width:40px;width:50px" />%
+        <div class="rate-bar"><div class="rate-fill rate-open" style="width:${Math.min(d.openRate,100)}%"></div></div>
+      </td>
+      <td>
+        <input class="editable" type="number" value="${d.replyRate}" min="0" max="100" onchange="updRate('${d.id}','replyRate',this.value)" style="min-width:40px;width:50px" />%
+        <div class="rate-bar"><div class="rate-fill rate-reply" style="width:${Math.min(d.replyRate,100)}%"></div></div>
+      </td>
+      <td><span class="badge ${sc}" onclick="cycleStatus('${d.id}',this)">${d.status}</span></td>
+      <td style="font-size:12px;${overdue?'color:#C62828;font-weight:600':'color:#666'}">${overdue?'⚠️ ':''}${fmtDate(d.follow)}</td>
+      <td><button class="del-btn" onclick="delEmail('${d.id}')" title="Διαγραφή">✕</button></td>
+    </tr>`;
+  }).join("");
+  renderStats();
+}
+render();
+</script>
+</body>
+</html>

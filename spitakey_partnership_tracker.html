@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Partnership Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#5B2D8E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600}
+.header p{color:#D4BFFF;font-size:12px;margin-top:2px}
+.main{max-width:1100px;margin:0 auto;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.stat{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:600;color:#5B2D8E}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.toolbar input,.toolbar select{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.toolbar input{flex:1;min-width:160px}
+.add-btn{padding:7px 16px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500}
+.add-btn:hover{background:#4A235A}
+.add-form{background:#F3EFFE;border:0.5px solid #D4BFFF;border-radius:12px;padding:16px;margin-bottom:16px;display:none}
+.add-form h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:#888;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.form-group textarea{resize:vertical;min-height:55px}
+.save-btn{padding:7px 20px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;margin-right:8px}
+.cancel-btn{padding:7px 20px;border-radius:8px;border:0.5px solid #D1C4E9;background:white;color:#555;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.card{background:white;border:0.5px solid #E0D6FF;border-radius:12px;overflow:hidden;transition:box-shadow 0.2s}
+.card:hover{box-shadow:0 4px 20px rgba(91,45,142,0.1)}
+.card-top{padding:14px 16px;border-bottom:0.5px solid #F3EFFE}
+.card-name{font-size:15px;font-weight:700;color:#1A1A1A;margin-bottom:2px}
+.card-org{font-size:12px;color:#888;margin-bottom:8px}
+.card-tags{display:flex;gap:6px;flex-wrap:wrap}
+.type-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.tt-pomida{background:#E3F2FD;color:#0D47A1}
+.tt-tee{background:#E8F5E9;color:#1B5E20}
+.tt-insurance{background:#FFF8E1;color:#E65100}
+.tt-uni{background:#F3EFFE;color:#5B2D8E}
+.tt-proptech{background:#FCE4EC;color:#880E4F}
+.tt-media{background:#E0F2F1;color:#00695C}
+.tt-bank{background:#F1F8E9;color:#33691E}
+.tt-other{background:#F1EFE8;color:#5F5E5A}
+.status-badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer}
+.s0{background:#F1EFE8;color:#5F5E5A}
+.s1{background:#E3F2FD;color:#185FA5}
+.s2{background:#FFF8E1;color:#E65100}
+.s3{background:#E8F5E9;color:#1B5E20}
+.s4{background:#FFEBEE;color:#C62828}
+.card-body{padding:12px 16px}
+.card-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px}
+.card-row-lbl{color:#888}
+.card-row-val{font-weight:500;color:#1A1A1A}
+.due-red{color:#C62828;font-weight:600}
+.due-orange{color:#E65100;font-weight:600}
+.notes-area{width:100%;border:0.5px solid #E0D6FF;border-radius:8px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:#555;background:#FAFAFA;outline:none;resize:vertical;min-height:50px;margin-top:8px}
+.notes-area:focus{border-color:#5B2D8E;background:white}
+.card-actions{padding:8px 16px;background:#FAFAFA;border-top:0.5px solid #F3EFFE;display:flex;gap:6px;justify-content:flex-end}
+.act-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:0.5px solid #E0D6FF;background:white;color:#5B2D8E;cursor:pointer;font-family:'DM Sans',sans-serif}
+.act-btn:hover{background:#F3EFFE}
+.act-btn.del{color:#C62828;border-color:#FFCDD2}
+.act-btn.del:hover{background:#FFEBEE}
+.value-tag{font-size:11px;background:#E8F5E9;color:#1B5E20;padding:2px 7px;border-radius:20px;font-weight:500}
+.empty{text-align:center;color:#AAA;padding:40px;grid-column:1/-1;font-size:13px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>🤝 Spitakey — Partnership Tracker</h1>
+    <p>ΠΟΜΙΔΑ · ΤΕΕ · Ασφαλιστικές · Πανεπιστήμια · PropTech · Media</p>
+  </div>
+  <div style="color:#D4BFFF;font-size:12px;text-align:right">spitakey.gr · Μάιος 2026</div>
+</div>
+<div class="main">
+  <div class="stats" id="statsRow"></div>
+  <div class="toolbar">
+    <input type="text" id="searchBox" placeholder="🔍 Αναζήτηση partner..." oninput="render()" />
+    <select id="filterType" onchange="render()">
+      <option value="">Όλοι οι τύποι</option>
+      <option>ΠΟΜΙΔΑ</option><option>ΤΕΕ</option><option>Ασφαλιστική</option>
+      <option>Πανεπιστήμιο</option><option>PropTech</option><option>Media</option>
+      <option>Τράπεζα</option><option>Άλλο</option>
+    </select>
+    <select id="filterStatus" onchange="render()">
+      <option value="">Όλα τα status</option>
+      <option>Δεν έχει επικοινωνήσει</option><option>Επικοινώνησα</option>
+      <option>Σε συζήτηση</option><option>Συμφωνία ✅</option><option>Αρνητικός</option>
+    </select>
+    <button class="add-btn" onclick="toggleForm()">+ Νέος Partner</button>
+  </div>
+
+  <div class="add-form" id="addForm">
+    <h3>+ Νέος Partner</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Όνομα επαφής</label><input id="f-name" placeholder="π.χ. Γιώργος Παπαδόπουλος"/></div>
+      <div class="form-group"><label>Οργανισμός</label><input id="f-org" placeholder="π.χ. ΠΟΜΙΔΑ"/></div>
+      <div class="form-group"><label>Τύπος</label>
+        <select id="f-type"><option>ΠΟΜΙΔΑ</option><option>ΤΕΕ</option><option>Ασφαλιστική</option><option>Πανεπιστήμιο</option><option>PropTech</option><option>Media</option><option>Τράπεζα</option><option>Άλλο</option></select>
+      </div>
+      <div class="form-group"><label>Τηλ / Email</label><input id="f-contact" placeholder="69X / email@..."/></div>
+      <div class="form-group"><label>Αξία συνεργασίας</label><input id="f-value" placeholder="π.χ. 500 landlords/μήνα"/></div>
+      <div class="form-group"><label>Status</label>
+        <select id="f-status"><option>Δεν έχει επικοινωνήσει</option><option>Επικοινώνησα</option><option>Σε συζήτηση</option><option>Συμφωνία ✅</option><option>Αρνητικός</option></select>
+      </div>
+      <div class="form-group"><label>Follow-up</label><input type="date" id="f-due"/></div>
+      <div class="form-group" style="grid-column:1/-1"><label>Σημειώσεις / Επόμενο βήμα</label>
+        <textarea id="f-notes" placeholder="Τι συζητήθηκε, τι χρειάζεται..."></textarea>
+      </div>
+    </div>
+    <button class="save-btn" onclick="addPartner()">Αποθήκευση</button>
+    <button class="cancel-btn" onclick="toggleForm()">Άκυρο</button>
+  </div>
+
+  <div class="cards" id="cardsGrid"></div>
+</div>
+
+<script>
+const KEY="spitakey_partners_v1";
+const STATUSES=["Δεν έχει επικοινωνήσει","Επικοινώνησα","Σε συζήτηση","Συμφωνία ✅","Αρνητικός"];
+const SC=["s0","s1","s2","s3","s4"];
+const TYPE_CLASS={"ΠΟΜΙΔΑ":"tt-pomida","ΤΕΕ":"tt-tee","Ασφαλιστική":"tt-insurance","Πανεπιστήμιο":"tt-uni","PropTech":"tt-proptech","Media":"tt-media","Τράπεζα":"tt-bank","Άλλο":"tt-other"};
+
+const DEFAULT=[
+  {id:"par1",name:"Δ.Σ. ΠΟΜΙΔΑ",org:"ΠΟΜΙΔΑ",type:"ΠΟΜΙΔΑ",contact:"pomida.gr",value:"Πρόσβαση σε 100.000+ landlords",status:"Δεν έχει επικοινωνήσει",due:"2026-06-15",notes:"Αποστολή email παρουσίασης + request για webinar στα μέλη"},
+  {id:"par2",name:"Τμήμα Μηχανικών",org:"ΤΕΕ",type:"ΤΕΕ",contact:"tee.gr",value:"Ενεργειακή πιστοποίηση ΠΕΑ — referrals",status:"Δεν έχει επικοινωνήσει",due:"2026-06-20",notes:"Partnership για ΠΕΑ badge στα listings"},
+  {id:"par3",name:"",org:"Interamerican",type:"Ασφαλιστική",contact:"interamerican.gr",value:"€20-80 ανά referral — ασφάλεια ενοικιαστή",status:"Δεν έχει επικοινωνήσει",due:"2026-07-01",notes:"Insurance referral program — Phase 2"},
+  {id:"par4",name:"",org:"Eurolife",type:"Ασφαλιστική",contact:"eurolife.gr",value:"€20-80 ανά referral",status:"Δεν έχει επικοινωνήσει",due:"2026-07-01",notes:"Εναλλακτικός ασφαλιστικός partner"},
+  {id:"par5",name:"Career Office",org:"ΕΚΠΑ",type:"Πανεπιστήμιο",contact:"uoa.gr",value:"Φοιτητές tenants — Student badge",status:"Δεν έχει επικοινωνήσει",due:"2026-09-01",notes:"Partnership για academic year 2026-27 — Student badge για verified φοιτητές"},
+  {id:"par6",name:"Career Office",org:"ΕΜΠ",type:"Πανεπιστήμιο",contact:"ntua.gr",value:"Φοιτητές tenants",status:"Δεν έχει επικοινωνήσει",due:"2026-09-01",notes:"Όπως ΕΚΠΑ"},
+  {id:"par7",name:"",org:"Spitogatos",type:"PropTech",contact:"spitogatos.gr",value:"Listing import / co-marketing",status:"Δεν έχει επικοινωνήσει",due:"2026-08-01",notes:"Δυνατότητα: import existing listings από Spitogatos στο Spitakey — BYL flow"},
+  {id:"par8",name:"",org:"Mononews / Iefimerida",type:"Media",contact:"",value:"Editorial coverage — PR",status:"Δεν έχει επικοινωνήσει",due:"2026-07-15",notes:"Article για Ν.5222/2025 + Spitakey mention — στείλε press kit"},
+  {id:"par9",name:"",org:"Eurobank",type:"Τράπεζα",contact:"eurobank.gr",value:"DIAS API + mortgage referrals",status:"Δεν έχει επικοινωνήσει",due:"2026-10-01",notes:"egg accelerator connection + DIAS integration — Phase 2"},
+];
+
+function load(){try{const s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}return DEFAULT;}
+let data=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}}
+function gid(){return"par"+Date.now();}
+function fmtDate(d){if(!d)return"—";return new Date(d).toLocaleDateString('el-GR',{day:'numeric',month:'short'});}
+function dueClass(d,status){
+  if(!d||status==="Συμφωνία ✅"||status==="Αρνητικός")return"";
+  const days=Math.round((new Date(d)-new Date())/(1000*60*60*24));
+  if(days<0)return"due-red";if(days<=14)return"due-orange";return"";
+}
+
+function toggleForm(){const f=document.getElementById("addForm");f.style.display=f.style.display==="none"||!f.style.display?"block":"none";}
+
+function addPartner(){
+  const org=document.getElementById("f-org").value.trim();
+  if(!org){alert("Βάλε οργανισμό!");return;}
+  data.push({id:gid(),name:document.getElementById("f-name").value,org,type:document.getElementById("f-type").value,contact:document.getElementById("f-contact").value,value:document.getElementById("f-value").value,status:document.getElementById("f-status").value,due:document.getElementById("f-due").value,notes:document.getElementById("f-notes").value});
+  save();document.getElementById("addForm").style.display="none";
+  ["f-name","f-org","f-contact","f-value","f-due","f-notes"].forEach(id=>document.getElementById(id).value="");render();
+}
+
+function delPartner(id){if(confirm("Διαγραφή partner;")){{data=data.filter(d=>d.id!==id);save();render();}}}
+function cycleStatus(id,el){
+  const d=data.find(x=>x.id===id);if(!d)return;
+  const n=(STATUSES.indexOf(d.status)+1)%STATUSES.length;
+  d.status=STATUSES[n];save();el.textContent=d.status;el.className="status-badge "+SC[n];renderStats();
+}
+function updNote(id,val){const d=data.find(x=>x.id===id);if(d){d.notes=val;save();}}
+
+function renderStats(){
+  const counts={};STATUSES.forEach(s=>counts[s]=0);data.forEach(d=>counts[d.status]=(counts[d.status]||0)+1);
+  document.getElementById("statsRow").innerHTML=[
+    {l:"Σύνολο partners",v:data.length},
+    {l:"Δεν επικοινώνησα",v:counts["Δεν έχει επικοινωνήσει"]||0},
+    {l:"Σε εξέλιξη",v:(counts["Επικοινώνησα"]||0)+(counts["Σε συζήτηση"]||0)},
+    {l:"Συμφωνίες ✅",v:counts["Συμφωνία ✅"]||0},
+    {l:"Αρνητικοί",v:counts["Αρνητικός"]||0},
+  ].map(s=>`<div class="stat"><div class="stat-num">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join("");
+}
+
+function render(){
+  const q=document.getElementById("searchBox").value.toLowerCase();
+  const ft=document.getElementById("filterType").value;
+  const fs=document.getElementById("filterStatus").value;
+  const fil=data.filter(d=>{
+    if(q&&!d.org.toLowerCase().includes(q)&&!d.name.toLowerCase().includes(q))return false;
+    if(ft&&d.type!==ft)return false;
+    if(fs&&d.status!==fs)return false;
+    return true;
+  });
+  const grid=document.getElementById("cardsGrid");
+  if(!fil.length){grid.innerHTML=`<div class="empty">Δεν βρέθηκαν partners</div>`;renderStats();return;}
+  grid.innerHTML=fil.map(d=>{
+    const bi=STATUSES.indexOf(d.status);const sc=SC[bi]||"s0";
+    const tc=TYPE_CLASS[d.type]||"tt-other";
+    const dc=dueClass(d.due,d.status);
+    return`<div class="card">
+      <div class="card-top">
+        <div class="card-name">${d.org}${d.name?` — ${d.name}`:''}</div>
+        <div class="card-org">${d.contact||''}</div>
+        <div class="card-tags">
+          <span class="type-tag ${tc}">${d.type}</span>
+          ${d.value?`<span class="value-tag">💡 ${d.value}</span>`:''}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-row">
+          <span class="card-row-lbl">Status</span>
+          <span class="status-badge ${sc}" onclick="cycleStatus('${d.id}',this)">${d.status}</span>
+        </div>
+        <div class="card-row">
+          <span class="card-row-lbl">Follow-up</span>
+          <span class="card-row-val ${dc}">${fmtDate(d.due)}</span>
+        </div>
+        <textarea class="notes-area" placeholder="Σημειώσεις..." onchange="updNote('${d.id}',this.value)">${d.notes||''}</textarea>
+      </div>
+      <div class="card-actions">
+        <button class="act-btn" onclick="cycleStatus('${d.id}',this.previousElementSibling)">▶ Επόμενο</button>
+        <button class="act-btn del" onclick="delPartner('${d.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join("");
+  renderStats();
+}
+render();
+</script>
+</body>
+</html>
