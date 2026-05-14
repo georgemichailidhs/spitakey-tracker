@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Funding Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#5B2D8E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600}
+.header p{color:#D4BFFF;font-size:12px;margin-top:2px}
+.main{max-width:1100px;margin:0 auto;padding:20px}
+
+/* PIPELINE STAGES */
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.stage{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:12px;text-align:center}
+.stage-title{font-size:11px;font-weight:600;color:#4A235A;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+.stage-count{font-size:24px;font-weight:600;color:#5B2D8E}
+.stage-amount{font-size:11px;color:#888;margin-top:2px}
+.stage.active{border-color:#5B2D8E;background:#F3EFFE}
+
+/* CARDS */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:20px}
+.card{background:white;border:0.5px solid #E0D6FF;border-radius:12px;overflow:hidden;transition:box-shadow 0.2s}
+.card:hover{box-shadow:0 4px 20px rgba(91,45,142,0.1)}
+.card-top{padding:14px 16px;border-bottom:0.5px solid #F3EFFE;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.card-name{font-weight:600;font-size:15px;color:#1A1A1A}
+.card-org{font-size:12px;color:#888;margin-top:2px}
+.card-amount{font-size:18px;font-weight:700;color:#5B2D8E;white-space:nowrap}
+.card-body{padding:12px 16px}
+.card-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px}
+.card-row-label{color:#888}
+.card-row-val{font-weight:500;color:#1A1A1A}
+.deadline-red{color:#C62828;font-weight:600}
+.deadline-orange{color:#E65100;font-weight:600}
+.deadline-green{color:#1B5E20;font-weight:600}
+.status-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:0.5px solid #F3EFFE}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap}
+.b0{background:#F1EFE8;color:#5F5E5A}
+.b1{background:#E6F1FB;color:#185FA5}
+.b2{background:#FAEEDA;color:#854F0B}
+.b3{background:#E8F5E9;color:#1B5E20}
+.b4{background:#FFEBEE;color:#C62828}
+.b5{background:#F3EFFE;color:#5B2D8E}
+.card-notes{margin-top:8px;padding-top:8px;border-top:0.5px solid #F3EFFE}
+.notes-input{width:100%;border:none;font-family:'DM Sans',sans-serif;font-size:12px;color:#555;background:transparent;outline:none;resize:none;min-height:40px}
+.notes-input:focus{background:#F9F5FF;border-radius:6px;padding:4px 6px}
+.card-actions{padding:10px 16px;background:#FAFAFF;display:flex;gap:8px;flex-wrap:wrap}
+.action-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:0.5px solid #D1C4E9;background:white;color:#5B2D8E;cursor:pointer;font-family:'DM Sans',sans-serif}
+.action-btn:hover{background:#F3EFFE}
+.action-btn.del{color:#C62828;border-color:#FFCDD2}
+.action-btn.del:hover{background:#FFEBEE}
+
+/* ADD FORM */
+.add-section{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:16px;margin-bottom:16px}
+.add-section h3{font-size:14px;font-weight:600;color:#4A235A;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:#888;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 10px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:#5B2D8E}
+.form-group textarea{resize:vertical;min-height:60px}
+.add-btn{padding:8px 20px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;margin-top:10px}
+.add-btn:hover{background:#4A235A}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.filter-bar input{flex:1;min-width:140px}
+.show-add-btn{padding:7px 16px;border-radius:8px;border:0.5px solid #5B2D8E;background:white;color:#5B2D8E;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500}
+.show-add-btn:hover{background:#F3EFFE}
+.total-bar{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:12px 18px;margin-bottom:16px;display:flex;gap:24px;flex-wrap:wrap}
+.total-item{font-size:13px}
+.total-item span:first-child{color:#888}
+.total-item span:last-child{font-weight:600;color:#5B2D8E;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>💰 Spitakey — Funding Pipeline</h1>
+    <p>Παρακολούθηση funding rounds, grants, accelerators</p>
+  </div>
+  <div style="color:#D4BFFF;font-size:12px;text-align:right">spitakey.gr · Μάιος 2026</div>
+</div>
+<div class="main">
+
+  <!-- PIPELINE STAGES -->
+  <div class="pipeline" id="pipelineRow"></div>
+
+  <!-- TOTAL BAR -->
+  <div class="total-bar" id="totalBar"></div>
+
+  <!-- FILTER + ADD -->
+  <div class="filter-bar">
+    <input type="text" id="searchBox" placeholder="🔍 Αναζήτηση..." oninput="render()" />
+    <select id="filterStage" onchange="render()">
+      <option value="">Όλα τα stages</option>
+      <option>Προετοιμασία</option>
+      <option>Υποβλήθηκε</option>
+      <option>Σε εξέλιξη</option>
+      <option>Εγκρίθηκε ✅</option>
+      <option>Απορρίφθηκε</option>
+    </select>
+    <button class="show-add-btn" onclick="toggleAdd()">+ Νέα αίτηση</button>
+  </div>
+
+  <!-- ADD FORM -->
+  <div class="add-section" id="addSection" style="display:none">
+    <h3>+ Νέα αίτηση / funding</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Όνομα προγράμματος</label><input id="f-name" placeholder="π.χ. NBG Business Seeds"/></div>
+      <div class="form-group"><label>Οργανισμός</label><input id="f-org" placeholder="π.χ. NBG"/></div>
+      <div class="form-group"><label>Τύπος</label>
+        <select id="f-type"><option>Grant</option><option>Accelerator</option><option>Angel</option><option>VC</option><option>Bank</option><option>ΕΣΠΑ</option></select>
+      </div>
+      <div class="form-group"><label>Ποσό (€)</label><input id="f-amount" placeholder="π.χ. 100000"/></div>
+      <div class="form-group"><label>Deadline</label><input type="date" id="f-deadline"/></div>
+      <div class="form-group"><label>Stage</label>
+        <select id="f-stage"><option>Προετοιμασία</option><option>Υποβλήθηκε</option><option>Σε εξέλιξη</option><option>Εγκρίθηκε ✅</option><option>Απορρίφθηκε</option></select>
+      </div>
+      <div class="form-group" style="grid-column:1/-1"><label>Σημειώσεις / Επόμενο βήμα</label><textarea id="f-notes" placeholder="π.χ. Στείλε application doc, περίμενε απάντηση..."></textarea></div>
+    </div>
+    <button class="add-btn" onclick="addFunding()">Προσθήκη</button>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards-grid" id="cardsGrid"></div>
+</div>
+
+<script>
+const KEY="spitakey_funding_v1";
+const STAGES=["Προετοιμασία","Υποβλήθηκε","Σε εξέλιξη","Εγκρίθηκε ✅","Απορρίφθηκε"];
+const BC=["b0","b1","b2","b3","b4"];
+const STAGE_COLORS=["#B4B2A9","#185FA5","#854F0B","#1B5E20","#C62828"];
+
+function fmtEur(n){if(!n)return"—";const v=parseInt(n);if(isNaN(v))return n;if(v>=1000000)return"€"+(v/1000000).toFixed(1)+"M";if(v>=1000)return"€"+(v/1000).toFixed(0)+"K";return"€"+v;}
+
+function deadlineClass(d){
+  if(!d)return"";
+  const days=(new Date(d)-new Date())/(1000*60*60*24);
+  if(days<0)return"deadline-red";
+  if(days<30)return"deadline-orange";
+  return"deadline-green";
+}
+function fmtDeadline(d){
+  if(!d)return"—";
+  const days=Math.round((new Date(d)-new Date())/(1000*60*60*24));
+  const fmt=new Date(d).toLocaleDateString('el-GR',{day:'numeric',month:'short',year:'numeric'});
+  if(days<0)return fmt+" (εκπρόθεσμο!)";
+  if(days===0)return fmt+" (σήμερα!)";
+  if(days<=30)return fmt+" ("+days+" ημέρες)";
+  return fmt;
+}
+
+const DEFAULT_DATA=[
+  {id:"f1",name:"NBG Business Seeds",org:"Εθνική Τράπεζα",type:"Accelerator",amount:"100000",deadline:"2026-07-31",stage:"Προετοιμασία",notes:"Application doc έτοιμο ✅ — Feasibility Study έτοιμο ✅ — Υποβολή Ιούλιος 2026"},
+  {id:"f2",name:"ΕΣΠΑ Πτυχιούχων «Ξεκινώ Επιχειρηματικά»",org:"ΕΣΠΑ / Κυβέρνηση",type:"ΕΣΠΑ",amount:"36000",deadline:"2026-06-30",stage:"Προετοιμασία",notes:"Deadline 30/06/2026 — ΑΜΕΣΑ έλεγξε eligibility — megaprofit.gr"},
+  {id:"f3",name:"ACEin Accelerator",org:"AUEB",type:"Accelerator",amount:"25000",deadline:"2026-12-31",stage:"Προετοιμασία",notes:"Rolling deadline — acein.gr — Mentoring + funding"},
+  {id:"f4",name:"egg Eurobank Accelerator",org:"Eurobank",type:"Accelerator",amount:"25000",deadline:"2027-02-28",stage:"Προετοιμασία",notes:"Επόμενος κύκλος Φεβ. 2027 — theegg.gr"},
+  {id:"f5",name:"EnvolveXL (Libra Group)",org:"Libra Group",type:"Accelerator",amount:"50000",deadline:"2026-11-30",stage:"Προετοιμασία",notes:"Νοέμβριος 2026 — envolveglobal.org"},
+  {id:"f6",name:"Elevate Greece",org:"Γενική Γραμματεία",type:"Grant",amount:"100000",deadline:"2026-09-30",stage:"Προετοιμασία",notes:"Μετά IKE σύσταση — elevategreece.gov.gr"},
+  {id:"f7",name:"Metavallon VC",org:"Metavallon",type:"VC",amount:"500000",deadline:"2027-06-30",stage:"Προετοιμασία",notes:"Year 2 — Seed round — metavallon.com — PropTech focus"},
+  {id:"f8",name:"Pi Labs",org:"Pi Labs London",type:"VC",amount:"750000",deadline:"2027-06-30",stage:"Προετοιμασία",notes:"EU PropTech VC — pi-labs.com — Αφού έχουμε traction"},
+  {id:"f9",name:"Angel Round",org:"Private Angels",type:"Angel",amount:"100000",deadline:"2026-12-31",stage:"Προετοιμασία",notes:"Q4 2026 — από εκθέσεις και networking — Pre-money €1-2M"},
+];
+
+function load(){try{const s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}return DEFAULT_DATA;}
+let data=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}}
+function gid(){return"f"+Date.now();}
+
+function toggleAdd(){
+  const s=document.getElementById("addSection");
+  s.style.display=s.style.display==="none"?"block":"none";
+}
+
+function addFunding(){
+  const name=document.getElementById("f-name").value.trim();
+  if(!name){alert("Βάλε όνομα προγράμματος!");return;}
+  data.push({
+    id:gid(),
+    name,
+    org:document.getElementById("f-org").value,
+    type:document.getElementById("f-type").value,
+    amount:document.getElementById("f-amount").value,
+    deadline:document.getElementById("f-deadline").value,
+    stage:document.getElementById("f-stage").value,
+    notes:document.getElementById("f-notes").value,
+  });
+  save();
+  ["f-name","f-org","f-amount","f-deadline","f-notes"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("addSection").style.display="none";
+  render();
+}
+
+function delFunding(id){if(confirm("Διαγραφή;")){{data=data.filter(d=>d.id!==id);save();render();}}}
+function updNote(id,val){const d=data.find(x=>x.id===id);if(d){d.notes=val;save();}}
+function cycleStage(id,el){
+  const d=data.find(x=>x.id===id);if(!d)return;
+  const n=(STAGES.indexOf(d.stage)+1)%STAGES.length;
+  d.stage=STAGES[n];save();
+  el.textContent=d.stage;el.className="badge "+BC[n];
+  renderPipeline();
+}
+
+function renderPipeline(){
+  const stages=STAGES.map(s=>{
+    const items=data.filter(d=>d.stage===s);
+    const total=items.reduce((a,d)=>a+(parseInt(d.amount)||0),0);
+    return{s,count:items.length,total};
+  });
+  document.getElementById("pipelineRow").innerHTML=stages.map((st,i)=>`
+    <div class="stage">
+      <div class="stage-title" style="color:${STAGE_COLORS[i]}">${st.s}</div>
+      <div class="stage-count">${st.count}</div>
+      <div class="stage-amount">${st.total>0?fmtEur(st.total):""}</div>
+    </div>`).join("");
+
+  const approved=data.filter(d=>d.stage==="Εγκρίθηκε ✅");
+  const pipeline=data.filter(d=>d.stage!=="Απορρίφθηκε"&&d.stage!=="Εγκρίθηκε ✅");
+  const totalApproved=approved.reduce((a,d)=>a+(parseInt(d.amount)||0),0);
+  const totalPipeline=pipeline.reduce((a,d)=>a+(parseInt(d.amount)||0),0);
+  document.getElementById("totalBar").innerHTML=`
+    <div class="total-item"><span>Σύνολο αιτήσεων:</span><span>${data.length}</span></div>
+    <div class="total-item"><span>Ενεργό pipeline:</span><span>${fmtEur(totalPipeline)}</span></div>
+    <div class="total-item"><span>Εγκεκριμένο:</span><span style="color:#1B5E20">${fmtEur(totalApproved)||"€0"}</span></div>
+    <div class="total-item"><span>Επόμενο deadline:</span><span style="color:#C62828">${getNextDeadline()}</span></div>`;
+}
+
+function getNextDeadline(){
+  const upcoming=data.filter(d=>d.deadline&&d.stage!=="Εγκρίθηκε ✅"&&d.stage!=="Απορρίφθηκε")
+    .sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+  if(!upcoming.length)return"—";
+  const d=upcoming[0];
+  return d.name.substring(0,20)+"... ("+new Date(d.deadline).toLocaleDateString('el-GR',{day:'numeric',month:'short'})+")";
+}
+
+function render(){
+  const q=document.getElementById("searchBox").value.toLowerCase();
+  const fs=document.getElementById("filterStage").value;
+  const fil=data.filter(d=>{
+    if(q&&!d.name.toLowerCase().includes(q)&&!d.org.toLowerCase().includes(q))return false;
+    if(fs&&d.stage!==fs)return false;
+    return true;
+  });
+  const grid=document.getElementById("cardsGrid");
+  if(!fil.length){grid.innerHTML=`<div style="text-align:center;color:#AAA;padding:40px;grid-column:1/-1">Δεν βρέθηκαν αιτήσεις</div>`;renderPipeline();return;}
+  const si=STAGES.indexOf;
+  fil.sort((a,b)=>{
+    if(a.deadline&&b.deadline)return new Date(a.deadline)-new Date(b.deadline);
+    if(a.deadline)return-1;if(b.deadline)return 1;return 0;
+  });
+  grid.innerHTML=fil.map(d=>{
+    const bi=STAGES.indexOf(d.stage);
+    const bc=BC[bi]||"b0";
+    const dc=deadlineClass(d.deadline);
+    const TYPE_COLORS={Grant:"#E8F5E9/1B5E20",Accelerator:"#F3EFFE/5B2D8E",Angel:"#FFF8E1/E65100",VC:"#E3F2FD/0D47A1",Bank:"#F1EFE8/5F5E5A",ΕΣΠΑ:"#FFEBEE/C62828"};
+    const [tbg,tc]=((TYPE_COLORS[d.type]||"F1EFE8/5F5E5A").split("/"));
+    return`<div class="card">
+      <div class="card-top">
+        <div>
+          <div class="card-name">${d.name}</div>
+          <div class="card-org">${d.org} · <span style="background:#${tbg};color:#${tc};padding:1px 6px;border-radius:10px;font-size:10px;font-weight:500">${d.type}</span></div>
+        </div>
+        <div class="card-amount">${fmtEur(d.amount)}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-row">
+          <span class="card-row-label">Deadline</span>
+          <span class="${dc}">${fmtDeadline(d.deadline)}</span>
+        </div>
+        <div class="card-row">
+          <span class="card-row-label">Stage</span>
+          <span class="badge ${bc}" onclick="cycleStage('${d.id}',this)" style="cursor:pointer">${d.stage}</span>
+        </div>
+        <div class="card-notes">
+          <textarea class="notes-input" placeholder="Σημειώσεις / Επόμενο βήμα..." onchange="updNote('${d.id}',this.value)">${d.notes||""}</textarea>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="action-btn" onclick="cycleStage('${d.id}',document.querySelector('[onclick*=\\'${d.id}\\']'))">▶ Επόμενο stage</button>
+        <button class="action-btn del" onclick="delFunding('${d.id}')">✕ Διαγραφή</button>
+      </div>
+    </div>`;
+  }).join("");
+  renderPipeline();
+}
+render();
+</script>
+</body>
+</html>

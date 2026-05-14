@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Sprint Board</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#5B2D8E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600}
+.header p{color:#D4BFFF;font-size:12px;margin-top:2px}
+.sprint-info{color:#D4BFFF;font-size:12px;text-align:right}
+.main{max-width:1200px;margin:0 auto;padding:20px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:600;color:#5B2D8E}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.toolbar select,.toolbar input{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.toolbar input{flex:1;min-width:140px}
+.add-btn{padding:7px 16px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500}
+.add-btn:hover{background:#4A235A}
+.sprint-btn{padding:7px 14px;border-radius:8px;border:0.5px solid #D1C4E9;background:white;color:#5B2D8E;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px}
+.sprint-btn:hover{background:#F3EFFE}
+
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.column{background:white;border:0.5px solid #E0D6FF;border-radius:12px;overflow:hidden}
+.col-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #F3EFFE}
+.col-title{font-weight:600;font-size:14px}
+.col-count{font-size:12px;color:#888;background:#F3EFFE;padding:2px 8px;border-radius:20px}
+.col-body{padding:12px;min-height:200px;display:flex;flex-direction:column;gap:8px}
+
+/* CARDS */
+.task-card{background:#FAFAFA;border:0.5px solid #E8E0F0;border-radius:10px;padding:12px;cursor:pointer;transition:all 0.15s;position:relative}
+.task-card:hover{border-color:#D4BFFF;background:#F9F5FF}
+.task-card.done{opacity:0.6;background:#F5FFF5;border-color:#C8E6C9}
+.task-title{font-size:13px;font-weight:500;color:#1A1A1A;margin-bottom:6px;line-height:1.4}
+.task-card.done .task-title{text-decoration:line-through;color:#888}
+.task-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap}
+.tag-george{background:#E3F2FD;color:#0D47A1}
+.tag-lefteris{background:#E8F5E9;color:#1B5E20}
+.tag-both{background:#F3EFFE;color:#5B2D8E}
+.tag-crit{background:#FFEBEE;color:#C62828}
+.tag-high{background:#FFF8E1;color:#E65100}
+.tag-med{background:#F1F8E9;color:#558B2F}
+.task-actions{display:flex;gap:4px;position:absolute;top:8px;right:8px;opacity:0;transition:opacity 0.15s}
+.task-card:hover .task-actions{opacity:1}
+.task-act-btn{background:white;border:0.5px solid #E0D6FF;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;color:#555}
+.task-act-btn:hover{background:#F3EFFE;color:#5B2D8E}
+.task-act-btn.del:hover{background:#FFEBEE;color:#C62828}
+
+/* ADD FORM */
+.add-form{background:#F3EFFE;border:0.5px solid #D4BFFF;border-radius:10px;padding:12px;margin-bottom:16px;display:none}
+.add-form h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:10px}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.form-row input,.form-row select{font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none;width:100%}
+.form-row input:focus,.form-row select:focus{border-color:#5B2D8E}
+.form-full input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none;margin-bottom:8px}
+.form-btns{display:flex;gap:8px}
+.form-save{padding:6px 16px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px}
+.form-cancel{padding:6px 16px;border-radius:8px;border:0.5px solid #D1C4E9;background:white;color:#555;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px}
+
+/* SPRINT HEADER */
+.sprint-header{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.sprint-label{font-size:13px;color:#4A235A;font-weight:600}
+.sprint-dates{font-size:12px;color:#888}
+.sprint-progress{flex:1;min-width:200px}
+.sprint-prog-bar{height:6px;background:#F3EFFE;border-radius:3px;overflow:hidden;margin-top:4px}
+.sprint-prog-fill{height:100%;border-radius:3px;background:#5B2D8E;transition:width 0.4s}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>📋 Spitakey — Weekly Sprint Board</h1>
+    <p>George & Lefteris — Τι κάνει ο καθένας αυτή την εβδομάδα</p>
+  </div>
+  <div class="sprint-info">spitakey.gr · Μάιος 2026</div>
+</div>
+<div class="main">
+
+  <div class="stats" id="statsRow"></div>
+
+  <div class="sprint-header">
+    <div>
+      <div class="sprint-label" id="sprintLabel">Sprint #1</div>
+      <div class="sprint-dates" id="sprintDates"></div>
+    </div>
+    <div class="sprint-progress">
+      <div style="font-size:12px;color:#888;display:flex;justify-content:space-between"><span>Πρόοδος sprint</span><span id="sprintPct">0%</span></div>
+      <div class="sprint-prog-bar"><div class="sprint-prog-fill" id="sprintFill" style="width:0%"></div></div>
+    </div>
+    <button class="sprint-btn" onclick="newSprint()">🔄 Νέο Sprint</button>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="searchBox" placeholder="🔍 Αναζήτηση task..." oninput="render()" />
+    <select id="filterWho" onchange="render()">
+      <option value="">Όλοι</option>
+      <option>George</option>
+      <option>Lefteris</option>
+      <option>Και οι δύο</option>
+    </select>
+    <select id="filterPri" onchange="render()">
+      <option value="">Όλες οι προτεραιότητες</option>
+      <option>🔴 Critical</option>
+      <option>🟠 High</option>
+      <option>🟡 Med</option>
+    </select>
+    <button class="add-btn" onclick="toggleForm()">+ Νέο task</button>
+  </div>
+
+  <!-- ADD FORM -->
+  <div class="add-form" id="addForm">
+    <h3>+ Νέο task</h3>
+    <div class="form-full"><input id="f-title" placeholder="Τίτλος task... π.χ. Stripe integration end-to-end test"/></div>
+    <div class="form-row">
+      <select id="f-who">
+        <option>George</option><option>Lefteris</option><option>Και οι δύο</option>
+      </select>
+      <select id="f-pri">
+        <option>🔴 Critical</option><option>🟠 High</option><option>🟡 Med</option>
+      </select>
+      <select id="f-col">
+        <option>To Do</option><option>In Progress</option><option>Done</option>
+      </select>
+      <input id="f-due" type="date" />
+    </div>
+    <div class="form-btns">
+      <button class="form-save" onclick="addTask()">Προσθήκη</button>
+      <button class="form-cancel" onclick="toggleForm()">Άκυρο</button>
+    </div>
+  </div>
+
+  <!-- KANBAN -->
+  <div class="kanban">
+    <div class="column">
+      <div class="col-header">
+        <div class="col-title" style="color:#E65100">📋 To Do</div>
+        <div class="col-count" id="cnt-todo">0</div>
+      </div>
+      <div class="col-body" id="col-todo"></div>
+    </div>
+    <div class="column">
+      <div class="col-header">
+        <div class="col-title" style="color:#185FA5">⚡ In Progress</div>
+        <div class="col-count" id="cnt-progress">0</div>
+      </div>
+      <div class="col-body" id="col-progress"></div>
+    </div>
+    <div class="column">
+      <div class="col-header">
+        <div class="col-title" style="color:#1B5E20">✅ Done</div>
+        <div class="col-count" id="cnt-done">0</div>
+      </div>
+      <div class="col-body" id="col-done"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY="spitakey_sprint_v1";
+const SPRINT_KEY="spitakey_sprint_meta";
+
+function getMonday(d){const day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);return new Date(d.setDate(diff));}
+function fmtDate(d){return d.toLocaleDateString('el-GR',{day:'numeric',month:'short'});}
+
+function loadMeta(){
+  try{const s=localStorage.getItem(SPRINT_KEY);if(s)return JSON.parse(s);}catch(e){}
+  const mon=getMonday(new Date());
+  const sun=new Date(mon);sun.setDate(sun.getDate()+6);
+  return{num:1,start:mon.toISOString().split('T')[0],end:sun.toISOString().split('T')[0]};
+}
+function saveMeta(){try{localStorage.setItem(SPRINT_KEY,JSON.stringify(meta));}catch(e){}}
+
+let meta=loadMeta();
+
+const DEFAULT=[
+  {id:"t1",title:"Stripe Connect — Destination Charges setup",who:"Lefteris",pri:"🔴 Critical",col:"In Progress",due:""},
+  {id:"t2",title:"Cookie banner live στο spitakey.gr",who:"Lefteris",pri:"🔴 Critical",col:"To Do",due:""},
+  {id:"t3",title:"e-Contract generation & e-signature flow",who:"Lefteris",pri:"🔴 Critical",col:"To Do",due:""},
+  {id:"t4",title:"Admin panel — KYC approve/reject",who:"Lefteris",pri:"🔴 Critical",col:"To Do",due:""},
+  {id:"t5",title:"Outreach — 10 πρώτες επαφές landlords",who:"George",pri:"🔴 Critical",col:"In Progress",due:""},
+  {id:"t6",title:"Print One-pager × 20 για έκθεση",who:"George",pri:"🔴 Critical",col:"To Do",due:"2026-05-15"},
+  {id:"t7",title:"Trademark «Spitakey» — OBI κατάθεση",who:"George",pri:"🟠 High",col:"To Do",due:""},
+  {id:"t8",title:"DPA με Railway + Cloudinary + Stripe",who:"George",pri:"🟠 High",col:"To Do",due:""},
+  {id:"t9",title:"QA Testing — Auth & KYC (TC-001 έως TC-033)",who:"George",pri:"🔴 Critical",col:"To Do",due:""},
+  {id:"t10",title:"2FA σε όλα τα accounts",who:"Και οι δύο",pri:"🔴 Critical",col:"To Do",due:""},
+];
+
+function load(){try{const s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}return DEFAULT;}
+let tasks=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(tasks));}catch(e){}}
+function gid(){return"t"+Date.now();}
+
+function toggleForm(){const f=document.getElementById("addForm");f.style.display=f.style.display==="none"||!f.style.display?"block":"none";}
+
+function addTask(){
+  const title=document.getElementById("f-title").value.trim();
+  if(!title)return;
+  tasks.push({id:gid(),title,who:document.getElementById("f-who").value,pri:document.getElementById("f-pri").value,col:document.getElementById("f-col").value,due:document.getElementById("f-due").value});
+  save();document.getElementById("f-title").value="";document.getElementById("addForm").style.display="none";render();
+}
+
+function moveTask(id,col){const t=tasks.find(x=>x.id===id);if(t){t.col=col;save();render();}}
+function delTask(id){if(confirm("Διαγραφή task;")){{tasks=tasks.filter(x=>x.id!==id);save();render();}}}
+function toggleDone(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  t.col=t.col==="Done"?"To Do":"Done";save();render();
+}
+
+function newSprint(){
+  if(!confirm("Νέο sprint; Τα Done tasks θα αρχειοθετηθούν."))return;
+  tasks=tasks.filter(t=>t.col!=="Done");
+  meta.num++;
+  const mon=getMonday(new Date());const sun=new Date(mon);sun.setDate(sun.getDate()+6);
+  meta.start=mon.toISOString().split('T')[0];meta.end=sun.toISOString().split('T')[0];
+  save();saveMeta();render();
+}
+
+function tagClass(who){return who==="George"?"tag-george":who==="Lefteris"?"tag-lefteris":"tag-both";}
+function priClass(p){return p.includes("Critical")?"tag-crit":p.includes("High")?"tag-high":"tag-med";}
+
+function isOverdue(d){return d&&new Date(d)<new Date();}
+
+function renderStats(){
+  const total=tasks.length;
+  const done=tasks.filter(t=>t.col==="Done").length;
+  const george=tasks.filter(t=>t.who==="George"&&t.col!=="Done").length;
+  const lefteris=tasks.filter(t=>t.who==="Lefteris"&&t.col!=="Done").length;
+  document.getElementById("statsRow").innerHTML=[
+    {l:"Σύνολο tasks",v:total},{l:"George εκκρεμεί",v:george},
+    {l:"Lefteris εκκρεμεί",v:lefteris},{l:"Done ✅",v:done}
+  ].map(s=>`<div class="stat"><div class="stat-num">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join("");
+  const pct=total?Math.round((done/total)*100):0;
+  document.getElementById("sprintPct").textContent=pct+"%";
+  document.getElementById("sprintFill").style.width=pct+"%";
+  document.getElementById("sprintLabel").textContent="Sprint #"+meta.num;
+  document.getElementById("sprintDates").textContent=fmtDate(new Date(meta.start))+" — "+fmtDate(new Date(meta.end));
+}
+
+function render(){
+  const q=document.getElementById("searchBox").value.toLowerCase();
+  const fw=document.getElementById("filterWho").value;
+  const fp=document.getElementById("filterPri").value;
+  const COLS=["To Do","In Progress","Done"];
+  const IDS=["todo","progress","done"];
+  COLS.forEach((col,ci)=>{
+    const fil=tasks.filter(t=>{
+      if(t.col!==col)return false;
+      if(q&&!t.title.toLowerCase().includes(q))return false;
+      if(fw&&t.who!==fw)return false;
+      if(fp&&t.pri!==fp)return false;
+      return true;
+    });
+    document.getElementById("cnt-"+IDS[ci]).textContent=fil.length;
+    const next=col==="To Do"?"In Progress":col==="In Progress"?"Done":null;
+    const prev=col==="In Progress"?"To Do":col==="Done"?"In Progress":null;
+    document.getElementById("col-"+IDS[ci]).innerHTML=fil.length?fil.map(t=>{
+      const due=isOverdue(t.due);
+      return`<div class="task-card${t.col==='Done'?' done':''}">
+        <div class="task-actions">
+          ${prev?`<button class="task-act-btn" onclick="moveTask('${t.id}','${prev}')">◀</button>`:''}
+          ${next?`<button class="task-act-btn" onclick="moveTask('${t.id}','${next}')">▶</button>`:''}
+          <button class="task-act-btn del" onclick="delTask('${t.id}')">✕</button>
+        </div>
+        <div class="task-title" onclick="toggleDone('${t.id}')">${t.title}</div>
+        <div class="task-meta">
+          <span class="tag ${tagClass(t.who)}">${t.who}</span>
+          <span class="tag ${priClass(t.pri)}">${t.pri}</span>
+          ${t.due?`<span class="tag" style="background:${due?'#FFEBEE':'#F1F8E9'};color:${due?'#C62828':'#558B2F'}">${due?'⚠️ ':'📅 '}${new Date(t.due).toLocaleDateString('el-GR',{day:'numeric',month:'short'})}</span>`:''}
+        </div>
+      </div>`;
+    }).join(""):`<div style="color:#CCC;font-size:12px;text-align:center;padding:24px">Δεν υπάρχουν tasks</div>`;
+  });
+  renderStats();
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — KPI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#5B2D8E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600}
+.header p{color:#D4BFFF;font-size:12px;margin-top:2px}
+.main{max-width:1100px;margin:0 auto;padding:20px}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi-card{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.purple::before{background:#5B2D8E}
+.kpi-card.green::before{background:#1B5E20}
+.kpi-card.blue::before{background:#0D47A1}
+.kpi-card.orange::before{background:#E65100}
+.kpi-label{font-size:11px;color:#888;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.kpi-value{font-size:28px;font-weight:700;color:#1A1A1A;line-height:1}
+.kpi-value.purple{color:#5B2D8E}
+.kpi-value.green{color:#1B5E20}
+.kpi-change{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px}
+.change-up{color:#1B5E20}
+.change-down{color:#C62828}
+.change-flat{color:#888}
+.kpi-target{font-size:11px;color:#AAA;margin-top:4px}
+
+/* SECTION TITLE */
+.section-title{font-size:14px;font-weight:600;color:#4A235A;margin-bottom:10px;margin-top:20px;padding-bottom:6px;border-bottom:0.5px solid #E0D6FF}
+
+/* ADD WEEK FORM */
+.add-week-section{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:16px;margin-bottom:20px}
+.add-week-section h3{font-size:13px;font-weight:600;color:#4A235A;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:#888;font-weight:500}
+.form-group input{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 10px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.form-group input:focus{border-color:#5B2D8E}
+.save-btn{padding:7px 20px;border-radius:8px;border:none;background:#5B2D8E;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500}
+.save-btn:hover{background:#4A235A}
+
+/* TABLE */
+.tbl-wrap{background:white;border:0.5px solid #E0D6FF;border-radius:12px;overflow:hidden;overflow-x:auto;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th{background:#F9F5FF;color:#4A235A;font-weight:500;font-size:12px;padding:10px 14px;text-align:left;border-bottom:0.5px solid #E0D6FF;white-space:nowrap}
+td{padding:9px 14px;border-bottom:0.5px solid #F3EFFE;font-size:13px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFF}
+.del-btn{background:none;border:none;cursor:pointer;color:#CCC;font-size:14px;padding:2px 5px;border-radius:4px}
+.del-btn:hover{color:#C62828;background:#FFEBEE}
+
+/* TARGETS TABLE */
+.targets-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.target-card{background:white;border:0.5px solid #E0D6FF;border-radius:12px;padding:14px}
+.target-name{font-size:12px;color:#888;margin-bottom:4px}
+.target-progress{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.target-val{font-size:18px;font-weight:700;color:#5B2D8E}
+.target-goal{font-size:12px;color:#AAA}
+.target-bar{height:6px;background:#F3EFFE;border-radius:3px;overflow:hidden}
+.target-fill{height:100%;border-radius:3px;transition:width 0.4s}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.b-up{background:#E8F5E9;color:#1B5E20}
+.b-down{background:#FFEBEE;color:#C62828}
+.b-flat{background:#F1EFE8;color:#5F5E5A}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>📈 Spitakey — KPI Dashboard</h1>
+    <p>Weekly metrics — Καταγραφή κάθε εβδομάδα</p>
+  </div>
+  <div style="color:#D4BFFF;font-size:12px;text-align:right">spitakey.gr · Στόχος Y1: 200 leases</div>
+</div>
+<div class="main">
+
+  <!-- LIVE KPIs -->
+  <div class="section-title">📊 Τρέχοντα KPIs (τελευταία εβδομάδα)</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- TARGETS -->
+  <div class="section-title">🎯 Πρόοδος προς Στόχους Year 1</div>
+  <div class="targets-grid" id="targetsGrid"></div>
+
+  <!-- ADD WEEK -->
+  <div class="section-title">+ Καταγραφή εβδομάδας</div>
+  <div class="add-week-section">
+    <h3>Εισήγαγε τα νούμερα της εβδομάδας</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Εβδομάδα (ημ/νία)</label><input type="date" id="f-week"/></div>
+      <div class="form-group"><label>Active Leases</label><input type="number" id="f-leases" placeholder="0"/></div>
+      <div class="form-group"><label>Νέοι Landlords</label><input type="number" id="f-landlords" placeholder="0"/></div>
+      <div class="form-group"><label>Νέοι Tenants</label><input type="number" id="f-tenants" placeholder="0"/></div>
+      <div class="form-group"><label>Revenue (€)</label><input type="number" id="f-revenue" placeholder="0"/></div>
+      <div class="form-group"><label>Νέα Listings</label><input type="number" id="f-listings" placeholder="0"/></div>
+      <div class="form-group"><label>KYC Approved</label><input type="number" id="f-kyc" placeholder="0"/></div>
+      <div class="form-group"><label>Avg. Ενοίκιο (€)</label><input type="number" id="f-rent" placeholder="800"/></div>
+    </div>
+    <button class="save-btn" onclick="addWeek()">Αποθήκευση εβδομάδας</button>
+  </div>
+
+  <!-- HISTORY TABLE -->
+  <div class="section-title">📅 Ιστορικό εβδομάδων</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Εβδομάδα</th>
+        <th>Active Leases</th>
+        <th>Νέοι Landlords</th>
+        <th>Νέοι Tenants</th>
+        <th>Revenue (€)</th>
+        <th>Listings</th>
+        <th>KYC Approved</th>
+        <th>Avg. Ενοίκιο</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const KEY="spitakey_kpi_v1";
+function load(){try{const s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}return[];}
+let weeks=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(weeks));}catch(e){}}
+
+// Set default date to today
+document.getElementById("f-week").value=new Date().toISOString().split('T')[0];
+
+function addWeek(){
+  const week=document.getElementById("f-week").value;
+  if(!week){alert("Βάλε ημερομηνία!");return;}
+  const entry={
+    week,
+    leases:parseInt(document.getElementById("f-leases").value)||0,
+    landlords:parseInt(document.getElementById("f-landlords").value)||0,
+    tenants:parseInt(document.getElementById("f-tenants").value)||0,
+    revenue:parseInt(document.getElementById("f-revenue").value)||0,
+    listings:parseInt(document.getElementById("f-listings").value)||0,
+    kyc:parseInt(document.getElementById("f-kyc").value)||0,
+    rent:parseInt(document.getElementById("f-rent").value)||800,
+  };
+  // Remove existing entry for same week
+  weeks=weeks.filter(w=>w.week!==week);
+  weeks.push(entry);
+  weeks.sort((a,b)=>new Date(b.week)-new Date(a.week));
+  save();
+  ["f-leases","f-landlords","f-tenants","f-revenue","f-listings","f-kyc"].forEach(id=>document.getElementById(id).value="");
+  render();
+}
+
+function delWeek(week){weeks=weeks.filter(w=>w.week!==week);save();render();}
+
+function fmtDate(d){return new Date(d).toLocaleDateString('el-GR',{day:'numeric',month:'short',year:'numeric'});}
+function fmtEur(n){return"€"+n.toLocaleString('el-GR');}
+function arrow(v,prev){
+  if(prev===undefined||prev===null)return{cls:"change-flat",icon:"—",pct:""};
+  if(v>prev)return{cls:"change-up",icon:"↑",pct:prev>0?"+"+(((v-prev)/prev)*100).toFixed(0)+"%":"+"+v};
+  if(v<prev)return{cls:"change-down",icon:"↓",pct:prev>0?"-"+(((prev-v)/prev)*100).toFixed(0)+"%":"-"+(prev-v)};
+  return{cls:"change-flat",icon:"→",pct:"0%"};
+}
+
+function render(){
+  const latest=weeks[0];
+  const prev=weeks[1];
+
+  // KPI CARDS
+  const kpis=[
+    {label:"Active Leases",key:"leases",color:"purple",target:200,suffix:"",icon:"🏠"},
+    {label:"Εβδομαδιαία Revenue",key:"revenue",color:"green",target:7680,suffix:"€",icon:"💰"},
+    {label:"Νέοι Landlords",key:"landlords",color:"blue",target:5,suffix:"",icon:"👤"},
+    {label:"KYC Approved",key:"kyc",color:"orange",target:10,suffix:"",icon:"✅"},
+  ];
+  document.getElementById("kpiGrid").innerHTML=kpis.map(k=>{
+    const val=latest?latest[k.key]:0;
+    const pval=prev?prev[k.key]:undefined;
+    const a=arrow(val,pval);
+    const disp=k.suffix==="€"?fmtEur(val):val;
+    return`<div class="kpi-card ${k.color}">
+      <div class="kpi-label">${k.icon} ${k.label}</div>
+      <div class="kpi-value ${k.color}">${disp}</div>
+      <div class="kpi-change">
+        <span class="${a.cls}">${a.icon} ${a.pct}</span>
+        <span style="color:#CCC;font-size:11px">vs προηγ. εβδ.</span>
+      </div>
+      <div class="kpi-target">Στόχος Y1: ${k.suffix==="€"?fmtEur(k.target):k.target}</div>
+    </div>`;
+  }).join("");
+
+  // TARGETS
+  const Y1={leases:200,revenue:38400,landlords:50,tenants:150,listings:60,kyc:80};
+  const cumLeases=latest?latest.leases:0;
+  const cumRevenue=weeks.reduce((a,w)=>a+w.revenue,0);
+  const targets=[
+    {name:"Active Leases (Y1 target: 200)",val:cumLeases,goal:Y1.leases,color:"#5B2D8E"},
+    {name:"Revenue (Y1 target: €38.400)",val:cumRevenue,goal:Y1.revenue,color:"#1B5E20",isEur:true},
+    {name:"Listings (Y1 target: 60)",val:latest?latest.listings:0,goal:Y1.listings,color:"#0D47A1"},
+    {name:"KYC Approved (Y1 target: 80)",val:latest?latest.kyc:0,goal:Y1.kyc,color:"#E65100"},
+    {name:"Νέοι Landlords (Y1 target: 50)",val:latest?latest.landlords:0,goal:Y1.landlords,color:"#7B3FB0"},
+    {name:"Νέοι Tenants (Y1 target: 150)",val:latest?latest.tenants:0,goal:Y1.tenants,color:"#00695C"},
+  ];
+  document.getElementById("targetsGrid").innerHTML=targets.map(t=>{
+    const pct=Math.min(Math.round((t.val/t.goal)*100),100);
+    const disp=t.isEur?fmtEur(t.val):t.val;
+    const goal=t.isEur?fmtEur(t.goal):t.goal;
+    return`<div class="target-card">
+      <div class="target-name">${t.name}</div>
+      <div class="target-progress">
+        <div class="target-val">${disp}</div>
+        <div class="target-goal">/ ${goal}</div>
+      </div>
+      <div class="target-bar"><div class="target-fill" style="width:${pct}%;background:${t.color}"></div></div>
+      <div style="font-size:11px;color:#888;margin-top:4px">${pct}% του Y1 στόχου</div>
+    </div>`;
+  }).join("");
+
+  // HISTORY TABLE
+  const tbody=document.getElementById("historyBody");
+  if(!weeks.length){
+    tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:#AAA;padding:32px">Δεν υπάρχουν εγγραφές ακόμα — ξεκίνα να καταγράφεις!</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=weeks.map((w,i)=>{
+    const p=weeks[i+1];
+    const la=arrow(w.leases,p?.leases);
+    const ra=arrow(w.revenue,p?.revenue);
+    return`<tr>
+      <td style="font-weight:500;color:#4A235A">${fmtDate(w.week)}</td>
+      <td>${w.leases} <span class="badge ${la.cls==='change-up'?'b-up':la.cls==='change-down'?'b-down':'b-flat'}">${la.icon}${la.pct}</span></td>
+      <td>${w.landlords}</td>
+      <td>${w.tenants}</td>
+      <td>${fmtEur(w.revenue)} <span class="badge ${ra.cls==='change-up'?'b-up':ra.cls==='change-down'?'b-down':'b-flat'}">${ra.icon}${ra.pct}</span></td>
+      <td>${w.listings}</td>
+      <td>${w.kyc}</td>
+      <td>€${w.rent}</td>
+      <td><button class="del-btn" onclick="delWeek('${w.week}')" title="Διαγραφή">✕</button></td>
+    </tr>`;
+  }).join("");
+}
+render();
+</script>
+</body>
+</html>

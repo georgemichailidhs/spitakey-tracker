@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spitakey — Launch Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:#F8F5FF;color:#1A1A1A;min-height:100vh}
+.header{background:#5B2D8E;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{color:white;font-size:18px;font-weight:600}
+.header p{color:#D4BFFF;font-size:12px;margin-top:2px}
+.header-right{color:#D4BFFF;font-size:12px;text-align:right}
+.main{max-width:900px;margin:0 auto;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:24px;font-weight:600;color:#5B2D8E}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+.progress-section{background:white;border:0.5px solid #E0D6FF;border-radius:10px;padding:14px 18px;margin-bottom:16px}
+.progress-header{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+.progress-header span:first-child{color:#4A235A;font-weight:500}
+.progress-header span:last-child{color:#5B2D8E;font-weight:600}
+.progress-bar{height:10px;background:#F3EFFE;border-radius:5px;overflow:hidden}
+.progress-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#5B2D8E,#7B3FB0);transition:width 0.4s}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;border:0.5px solid #D1C4E9;border-radius:8px;background:white;color:#1A1A1A;outline:none}
+.filter-bar input{flex:1;min-width:160px}
+.category{margin-bottom:20px}
+.cat-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;background:white;border-radius:10px;border:0.5px solid #E0D6FF}
+.cat-title{font-weight:600;font-size:14px;color:#4A235A;flex:1}
+.cat-count{font-size:12px;color:#888}
+.cat-progress{font-size:12px;color:#5B2D8E;font-weight:500}
+.item{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;background:white;border:0.5px solid #F0E8FF;border-radius:8px;margin-bottom:6px;transition:all 0.2s}
+.item:hover{border-color:#D4BFFF}
+.item.done{background:#F9FEF5;border-color:#C8E6C9;opacity:0.8}
+.item.done .item-title{text-decoration:line-through;color:#888}
+.checkbox{width:20px;height:20px;border:2px solid #D1C4E9;border-radius:5px;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;background:white}
+.checkbox.checked{background:#5B2D8E;border-color:#5B2D8E;color:white;font-size:12px}
+.item-content{flex:1}
+.item-title{font-size:13px;font-weight:500;color:#1A1A1A;margin-bottom:3px}
+.item-desc{font-size:12px;color:#888;line-height:1.4}
+.item-meta{display:flex;gap:8px;margin-top:5px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.tag-crit{background:#FFEBEE;color:#C62828}
+.tag-high{background:#FFF8E1;color:#E65100}
+.tag-med{background:#E8F5E9;color:#1B5E20}
+.tag-who{background:#F3EFFE;color:#5B2D8E}
+.tag-law{background:#E3F2FD;color:#0D47A1}
+.empty{text-align:center;color:#AAA;padding:40px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>🚀 Spitakey — Launch Checklist</h1>
+    <p>Όλα τα βήματα πριν το 1ο real lease</p>
+  </div>
+  <div class="header-right">spitakey.gr · Μάιος 2026</div>
+</div>
+<div class="main">
+  <div class="stats" id="statsRow"></div>
+  <div class="progress-section">
+    <div class="progress-header">
+      <span>Συνολική πρόοδος προς launch</span>
+      <span id="progLabel">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="searchBox" placeholder="🔍 Αναζήτηση..." oninput="render()" />
+    <select id="filterCat" onchange="render()">
+      <option value="">Όλες οι κατηγορίες</option>
+      <option>🔒 Νομικά & Compliance</option>
+      <option>💳 Stripe & Payments</option>
+      <option>🏛️ Εταιρεία & Διοικητικά</option>
+      <option>🔧 Tech & Product</option>
+      <option>📣 Marketing & Growth</option>
+      <option>🔐 Security & GDPR</option>
+    </select>
+    <select id="filterStatus" onchange="render()">
+      <option value="">Όλα</option>
+      <option value="pending">⬜ Εκκρεμεί</option>
+      <option value="done">✅ Ολοκληρώθηκε</option>
+    </select>
+  </div>
+  <div id="content"></div>
+</div>
+<script>
+const KEY = "spitakey_launch_v1";
+const ITEMS = [
+  // ΝΟΜΙΚΑ
+  {id:"l01",cat:"🔒 Νομικά & Compliance",title:"Checkbox υπαναχώρησης 14 ημερών στο e-contract",desc:"Προσθήκη ρητής αποποίησης δικαιώματος υπαναχώρησης πριν την υπογραφή — Οδηγία 2011/83/ΕΕ",priority:"crit",who:"George+Lefteris"},
+  {id:"l02",cat:"🔒 Νομικά & Compliance",title:"ADR clause στους Terms of Service",desc:"Προσθήκη Συνήγορος Καταναλωτή + EU ODR platform link — υποχρεωτικό από Οδηγία 2013/11/ΕΕ",priority:"crit",who:"George"},
+  {id:"l03",cat:"🔒 Νομικά & Compliance",title:"Balanced liability clause στους Terms",desc:"Αφαίρεση «αποκλείουμε κάθε ευθύνη» — αντικατάσταση με balanced clause",priority:"crit",who:"George"},
+  {id:"l04",cat:"🔒 Νομικά & Compliance",title:"Νομικός review ΟΛΩ των templates (SPK-01 έως SPK-13)",desc:"Εξειδικευμένος δικηγόρος καταναλωτικού δικαίου — πριν launch",priority:"crit",who:"George"},
+  {id:"l05",cat:"🔒 Νομικά & Compliance",title:"Κατάθεση trademark «Spitakey» στο ΟΒΙ",desc:"obi.gr — €110-250 εφάπαξ — ως φυσικό πρόσωπο",priority:"crit",who:"George"},
+  {id:"l06",cat:"🔒 Νομικά & Compliance",title:"IKE σύσταση",desc:"Μετά το 1ο real lease signing — Γενικό Εμπορικό Μητρώο (ΓΕΜΗ)",priority:"high",who:"George"},
+  {id:"l07",cat:"🔒 Νομικά & Compliance",title:"Taxisnet δήλωση μισθωτηρίων",desc:"Ενημέρωση flow: email reminder 30 ημέρες μετά lease activation",priority:"high",who:"George+Lefteris"},
+  // STRIPE
+  {id:"s01",cat:"💳 Stripe & Payments",title:"Stripe Connect — Destination Charges setup",desc:"Πλήρης integration: tenant χρεώνεται, Spitakey κρατά 4%, landlord λαμβάνει το υπόλοιπο",priority:"crit",who:"Lefteris"},
+  {id:"s02",cat:"💳 Stripe & Payments",title:"Stripe webhooks — payment.succeeded / payment.failed",desc:"DB update + email notifications για κάθε transaction",priority:"crit",who:"Lefteris"},
+  {id:"s03",cat:"💳 Stripe & Payments",title:"Escrow εγγύηση — hold & release logic",desc:"Εγγύηση παγώνει μετά signing, αποδεσμεύεται 30 ημέρες μετά checkout χωρίς dispute",priority:"crit",who:"Lefteris"},
+  {id:"s04",cat:"💳 Stripe & Payments",title:"End-to-end payment test με Stripe test cards",desc:"4242...4242 (pass), 4000...0002 (fail), 4000 0025 0000 3155 (3DS) — TC-063 έως TC-075",priority:"crit",who:"George (QA)"},
+  {id:"s05",cat:"💳 Stripe & Payments",title:"SEPA Direct Debit setup",desc:"Φθηνότερο από κάρτα (€0.35/txn) — recommended για tenants",priority:"high",who:"Lefteris"},
+  {id:"s06",cat:"💳 Stripe & Payments",title:"Data Processing Agreement (DPA) με Stripe",desc:"ΓΚΠΔ υποχρέωση — dashboard.stripe.com/settings/legal",priority:"high",who:"George"},
+  // ΕΤΑΙΡΕΙΑ
+  {id:"c01",cat:"🏛️ Εταιρεία & Διοικητικά",title:"Data Processing Agreements (DPA) με Railway",desc:"DPA για backend hosting — railway.com/legal",priority:"crit",who:"George"},
+  {id:"c02",cat:"🏛️ Εταιρεία & Διοικητικά",title:"DPA με Cloudinary",desc:"DPA για media storage — cloudinary.com/legal",priority:"crit",who:"George"},
+  {id:"c03",cat:"🏛️ Εταιρεία & Διοικητικά",title:"Founders Agreement υπογεγραμμένο",desc:"SPK-03: vesting 4 χρόνια / 1 χρόνο cliff, good/bad leaver, IP assignment",priority:"crit",who:"George+Lefteris"},
+  {id:"c04",cat:"🏛️ Εταιρεία & Διοικητικά",title:"Λογιστής retainer",desc:"Για IKE: ΑΠΔ, ΦΠΑ, μισθοδοσία μετά 1ο hire — €200/μήνα",priority:"high",who:"George"},
+  {id:"c05",cat:"🏛️ Εταιρεία & Διοικητικά",title:"Εξέλεγξε ΕΣΠΑ Πτυχιούχων",desc:"Deadline 30/06/2026 — megaprofit.gr — €13.000-36.000 (100% επιχορήγηση)",priority:"crit",who:"George"},
+  // TECH
+  {id:"t01",cat:"🔧 Tech & Product",title:"Cookie banner live",desc:"GDPR υποχρέωση — αποδοχή/απόρριψη non-essential cookies",priority:"crit",who:"Lefteris"},
+  {id:"t02",cat:"🔧 Tech & Product",title:"KYC flow — Gov.gr end-to-end test",desc:"Landlord + tenant KYC, E9 upload, admin approve/reject — TC-023 έως TC-033",priority:"crit",who:"George (QA)"},
+  {id:"t03",cat:"🔧 Tech & Product",title:"e-Contract generation & signing",desc:"Auto-generated PDF, landlord + tenant e-signature, eIDAS compliance",priority:"crit",who:"Lefteris"},
+  {id:"t04",cat:"🔧 Tech & Product",title:"Email notifications — E01 έως E13",desc:"Όλα τα transactional emails δοκιμασμένα — TC-086 έως TC-093",priority:"crit",who:"Lefteris+George"},
+  {id:"t05",cat:"🔧 Tech & Product",title:"Admin panel — KYC review",desc:"George μπορεί να approve/reject KYC μέσα από admin panel",priority:"crit",who:"Lefteris"},
+  {id:"t06",cat:"🔧 Tech & Product",title:"UptimeRobot monitoring setup",desc:"uptimerobot.com — άμεση ειδοποίηση αν πέσει το site",priority:"high",who:"Lefteris"},
+  {id:"t07",cat:"🔧 Tech & Product",title:"QA Testing — 147 test cases",desc:"George τρέχει ΟΛΑ τα tests από το QA Checklist — 100% PASS πριν launch",priority:"crit",who:"George"},
+  {id:"t08",cat:"🔧 Tech & Product",title:"1ο real listing δημοσίευση",desc:"Από γνωστό landlord — end-to-end test με πραγματικά δεδομένα",priority:"crit",who:"George"},
+  {id:"t09",cat:"🔧 Tech & Product",title:"1ο real lease signing",desc:"Μετά από αυτό: IKE σύσταση",priority:"crit",who:"George+Lefteris"},
+  // MARKETING
+  {id:"m01",cat:"📣 Marketing & Growth",title:"Press Kit διανομή στην έκθεση",desc:"Premium Real Estate Expo 15-17/5 — One-pager × 20, QR code, pitch card",priority:"crit",who:"George"},
+  {id:"m02",cat:"📣 Marketing & Growth",title:"Outreach — 20 πρώτες επαφές",desc:"Φίλοι, συγγενείς, γνωστοί που έχουν ακίνητο — από το Outreach Tracker",priority:"crit",who:"George"},
+  {id:"m03",cat:"📣 Marketing & Growth",title:"NBG Business Seeds αίτηση",desc:"nbg.gr/seeds — Ιούλιος 2026 — Application document έτοιμο ✅",priority:"crit",who:"George"},
+  {id:"m04",cat:"📣 Marketing & Growth",title:"ΠΟΜΙΔΑ outreach email",desc:"Ζητάς συνεργασία — template E05 στα email templates",priority:"high",who:"George"},
+  {id:"m05",cat:"📣 Marketing & Growth",title:"Social media — πρώτα 5 posts",desc:"Instagram + LinkedIn: «Ετοιμαζόμαστε για launch» — με QR code",priority:"med",who:"George"},
+  // SECURITY
+  {id:"sec01",cat:"🔐 Security & GDPR",title:"2FA σε ΟΛΑ τα critical accounts",desc:"Google, Railway, Stripe, Cloudinary, Webflow, GitHub — ΑΜΕΣΑ",priority:"crit",who:"George+Lefteris"},
+  {id:"sec02",cat:"🔐 Security & GDPR",title:"Password Manager setup (1Password)",desc:"1password.com — €4/user/μήνα — shared vault για team",priority:"crit",who:"George+Lefteris"},
+  {id:"sec03",cat:"🔐 Security & GDPR",title:"Privacy Policy live",desc:"Σελίδα /privacy στο spitakey.gr — ενημερωμένη με ADR links",priority:"crit",who:"Lefteris"},
+  {id:"sec04",cat:"🔐 Security & GDPR",title:"ΑΠΔΠΧ εγγραφή (αν απαιτείται)",desc:"Εξέλεγξε αν χρειάζεται εγγραφή στην ΑΠΔΠΧ για processing activities — dpa.gr",priority:"high",who:"George"},
+];
+
+function loadState() {
+  try { const s=localStorage.getItem(KEY); if(s) return JSON.parse(s); } catch(e) {}
+  return {};
+}
+let state = loadState();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} }
+function toggle(id) { state[id]=!state[id]; save(); render(); }
+
+function renderStats() {
+  const total = ITEMS.length;
+  const done = ITEMS.filter(i=>state[i.id]).length;
+  const crit = ITEMS.filter(i=>i.priority==="crit"&&!state[i.id]).length;
+  const pct = Math.round((done/total)*100);
+  document.getElementById("statsRow").innerHTML = [
+    {l:"Σύνολο tasks",v:total},{l:"Ολοκληρώθηκαν",v:done},
+    {l:"Εκκρεμεί",v:total-done},{l:"🔴 Critical εκκρεμεί",v:crit}
+  ].map(s=>`<div class="stat"><div class="stat-num">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join("");
+  document.getElementById("progFill").style.width=pct+"%";
+  document.getElementById("progLabel").textContent=pct+"% ("+done+"/"+total+")";
+}
+
+function render() {
+  const q=document.getElementById("searchBox").value.toLowerCase();
+  const fc=document.getElementById("filterCat").value;
+  const fs=document.getElementById("filterStatus").value;
+  const cats=["🔒 Νομικά & Compliance","💳 Stripe & Payments","🏛️ Εταιρεία & Διοικητικά","🔧 Tech & Product","📣 Marketing & Growth","🔐 Security & GDPR"];
+  let html="";
+  cats.forEach(cat=>{
+    if(fc&&fc!==cat) return;
+    const items=ITEMS.filter(i=>{
+      if(i.cat!==cat) return false;
+      if(q&&!i.title.toLowerCase().includes(q)&&!i.desc.toLowerCase().includes(q)) return false;
+      if(fs==="done"&&!state[i.id]) return false;
+      if(fs==="pending"&&state[i.id]) return false;
+      return true;
+    });
+    if(!items.length) return;
+    const done=items.filter(i=>state[i.id]).length;
+    html+=`<div class="category">
+      <div class="cat-header">
+        <div class="cat-title">${cat}</div>
+        <div class="cat-count">${done}/${items.length}</div>
+        <div class="cat-progress">${Math.round((done/items.length)*100)}%</div>
+      </div>`;
+    items.forEach(item=>{
+      const isDone=state[item.id];
+      const pc={"crit":"tag-crit","high":"tag-high","med":"tag-med"}[item.priority]||"tag-med";
+      const pl={"crit":"🔴 Critical","high":"🟠 High","med":"🟡 Med"}[item.priority]||"";
+      html+=`<div class="item${isDone?' done':''}">
+        <div class="checkbox${isDone?' checked':''}" onclick="toggle('${item.id}')">${isDone?'✓':''}</div>
+        <div class="item-content">
+          <div class="item-title">${item.title}</div>
+          <div class="item-desc">${item.desc}</div>
+          <div class="item-meta">
+            <span class="tag ${pc}">${pl}</span>
+            <span class="tag tag-who">👤 ${item.who}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  document.getElementById("content").innerHTML=html||`<div class="empty">Δεν βρέθηκαν tasks</div>`;
+  renderStats();
+}
+render();
+</script>
+</body>
+</html>
